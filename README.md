@@ -1,37 +1,150 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🚀 HızlıSat – Mikro Satıcılar İçin Sipariş & Fatura & Kargo Paneli
 
-## Getting Started
+## 1. Vizyon & Misyon
 
-First, run the development server:
+**Vizyon:**  
+Türkiye’deki mikro girişimcilerin her aşamada yanında olan “hepsi-bir-arada” ticaret ortağı olmak.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+**Misyon:**  
+Siparişten kargoya, faturadan satış analizine kadar tüm operasyonu otomatikleştirerek, satıcının işine odaklanmasını sağlamak.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 2. Temel Sorunlar
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 🔧 Operasyonel Dağınıklık  
+Sipariş, fatura ve kargo ayrı panellerde → zaman kaybı ve hata riski
 
-## Learn More
+### 📉 Veri Görünürlüğü Eksikliği  
+Anlık rapor, öngörü ve stok kontrolü yok
 
-To learn more about Next.js, take a look at the following resources:
+### 🔌 Entegrasyon Karmaşası  
+Her pazar yeri ve kargo firması ayrı entegrasyon gerektiriyor
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+> Mikro satıcı işine odaklanmak ister, sistem karmaşasına değil.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## 3. Farklılaşma (USP)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- 🔍 **Akıllı Öngörü Motoru:**  
+  Satış trendine göre stok uyarıları, en çok satan ürün bildirimi
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-# hizlisatpanel
+- 💬 **Mesajlaşma Asistanı:**  
+  “Siparişim nerede?” gibi DM’lere otomatik yanıt (WhatsApp/Instagram)
+
+- 🧱 **Modüler Dikey Paketler:**  
+  Sektöre özel modüller: örn. Bebek ürünlerine özel iade yönetimi
+
+---
+
+## 4. Hedef Kitle & Segmentler
+
+| Segment | Sipariş Seviyesi | Acı Nokta | Örnek |
+|---------|------------------|-----------|--------|
+| Evde Satıcı | < 50 sipariş | Fatura yok, Excel karmaşık | Takı satışı, ev ürünleri |
+| Mikro İşletme | 50–300 sipariş | Süreç dağınıklığı, zaman kaybı | Bebek giyim, sabun |
+| Yeni Girişim | 0–100 sipariş | Nereden başlayacağını bilmiyor | Trendyol yeni mağaza |
+
+---
+
+## 5. Çözüm Özeti – MVP İçeriği
+
+- ✅ Ürün/Stok/Varyant yönetimi
+- ✅ Sipariş takibi (manuel + Trendyol API)
+- ✅ PDF fatura oluşturma (PDFKit)
+- ✅ Kargo barkodu (Yurtiçi, Trendyol Express)
+- ✅ Dashboard (günlük satış, fatura sayısı)
+- ✅ Kullanıcı girişi (NextAuth)
+
+---
+
+## 6. Teknik Yapı (Stack)
+
+| Katman      | Teknoloji            |
+|-------------|----------------------|
+| Framework   | Next.js 15+ (App Router) |
+| Backend     | API Routes (`app/api/`) |
+| Veritabanı  | MongoDB (Mongoose)   |
+| Auth        | NextAuth             |
+| UI/UX       | TailwindCSS + shadcn/ui |
+| PDF Çıktı   | PDFKit               |
+| Hosting     | Vercel               |
+
+---
+
+## 7. Yol Haritası
+
+### 🔹 MVP (4–6 Hafta)
+- Panel + ürün/sipariş modülü
+- Fatura (PDF)
+- Kargo barkodu
+- Dashboard
+
+### 🔹 MVP+1 (2 Hafta)
+- E-fatura entegrasyonu
+- Otomatik stok uyarıları
+- WhatsApp botu (Twilio)
+
+### 🔹 Genişleme (6–8 Hafta)
+- Hepsiburada, TikTok Shop API
+- Dikey modüller
+- Çoklu para birimi, dil
+- Analiz raporları (Excel, PDF)
+
+---
+
+## 8. Gelir Modeli
+
+| Plan         | Özellikler                                | Fiyat      |
+|--------------|--------------------------------------------|------------|
+| Ücretsiz     | 10 sipariş, temel modüller                 | 0 ₺        |
+| Başlangıç    | 100 sipariş, fatura PDF, stok takibi       | 99 ₺ / ay  |
+| Profesyonel  | Trendyol API, kargo barkodu, akıllı modül  | 199 ₺ / ay |
+| Kurumsal     | E-fatura, analiz raporu, WhatsApp botu     | 399 ₺ / ay |
+| Pay-as-you-go | Entegrasyon başı 50 ₺                     | Opsiyonel  |
+
+**Drip Kampanya:** Ücretsiz → Profesyonel geçişi için otomatik e-posta + in-app bildirim  
+**Yıllık Ödeme:** %15 indirim
+
+---
+
+## 9. Pazarlama Stratejisi
+
+- 🎯 Segment bazlı Instagram/Facebook reklamları
+- 📦 Mikro influencer iş birlikleri + çekilişler
+- 📹 YouTube eğitim serisi: “5 Dakikada Panel Kullanımı”
+- 🧲 Referans Programı: “Arkadaşını getir, 1 ay bedava”
+- 📧 E-posta kampanyaları (drip onboarding)
+
+---
+
+## 10. Başarı Ölçütleri (KPI)
+
+- MAU (Aylık Aktif Kullanıcı)
+- Ücretli kullanıcı dönüşüm oranı
+- Sipariş başına kullanıcı sayısı
+- Müşteri Memnuniyeti (NPS)
+- Destek talebi çözüm süresi
+
+---
+
+## 11. Riskler & Önlemler
+
+| Risk             | Önlem                                |
+|------------------|---------------------------------------|
+| API gecikmeleri  | Manuel CSV içe aktarma (fallback)     |
+| Kargo hataları   | Durum güncelleme botu + destek sistemi|
+| Veri kaybı       | Mongo Atlas snapshot + otomatik backup|
+| Karışıklık       | Rehber videolar + onboarding ekranı   |
+
+---
+
+## 🎁 Bonus: Landing Page Mesajı (Örnek)
+
+> “Siparişten kargoya, artık her şey HızlıSat’ta.  
+Evde satış yapan herkes için, tek panelde profesyonel satış deneyimi.  
+🚀 Şimdi ücretsiz deneyin!”
+
+---
+
