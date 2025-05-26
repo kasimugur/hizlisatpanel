@@ -7,7 +7,7 @@ export default function RecentOrdersCard() {
      { id: 1, customer: "Ayşe K.", quantity: 2, amount: 300, status: "Hazırlanıyor" },
   { id: 2, customer: "Mehmet Y.", quantity: 1, amount: 120, status: "Kargoda" },
   { id: 3, customer: "Fatma A.", quantity: 3, amount: 450, status: "Teslim Edildi" },
-  { id: 4, customer: "Ali V.", quantity: 1, amount: 150, status: "İptal" },
+  { id: 4, customer: "Ali V.", quantity: 1, amount: 150, status: "İptal Edildi" },
   { id: 5, customer: "Ahmet K.", quantity: 2, amount: 280, status: "Hazırlanıyor" },
   { id: 6, customer: "Zeynep D.", quantity: 1, amount: 100, status: "Hazırlanıyor" }
   ]
@@ -16,7 +16,7 @@ export default function RecentOrdersCard() {
     "Hazırlanıyor": "bg-yellow-200 text-yellow-800",
     "Kargoda": "bg-blue-200 text-blue-800",
     "Teslim Edildi": "bg-green-200 text-green-800",
-    "İptal": "bg-red-500 text-red-800",
+    "İptal Edildi": "bg-red-500 text-red-800",
   }
 
   return (

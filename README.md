@@ -147,4 +147,55 @@ Evde satış yapan herkes için, tek panelde profesyonel satış deneyimi.
 🚀 Şimdi ücretsiz deneyin!”
 
 ---
+## temel Sayfa  yapısı 
+/app
+│
+├── layout.tsx                 → Genel layout (sidebar/topbar)
+├── page.tsx                   → Ana landing sayfası (/)
+│
+├── login
+│   └── page.tsx               → Giriş sayfası (/login)
+│
+├── register
+│   └── page.tsx               → Kayıt sayfası (/register)
+│
+├── dashboard
+│   ├── layout.tsx             → Dashboard'a özel layout (sidebar'lı)
+│   ├── page.tsx               → Dashboard anasayfa (özetler)
+│
+│   ├── products
+│   │   ├── page.tsx           → Ürün listesi
+│   │   └── new
+│   │       └── page.tsx       → Yeni ürün ekleme formu
+│
+│   ├── orders
+│   │   ├── page.tsx           → Sipariş listesi
+│   │   └── new
+│   │       └── page.tsx       → Sipariş oluşturma formu
+│
+│   ├── invoices
+│   │   └── page.tsx           → Fatura listesi
+│
+│   ├── shipping
+│   │   └── page.tsx           → Kargo barkodu ve takip
+│
+│   └── settings
+│       └── page.tsx           → Kullanıcı ayarları
+│
+├── api
+│   ├── products
+│   │   └── route.ts           → GET/POST: Ürün API'si
+│
+│   ├── orders
+│   │   └── route.ts           → Sipariş API'si
+│
+│   ├── invoices
+│   │   └── route.ts           → Fatura PDF API'si
+│
+│   └── auth
+│       ├── login
+│       │   └── route.ts       → POST: Giriş
+│       └── register
+│           └── route.ts       → POST: Kayıt
+
 
