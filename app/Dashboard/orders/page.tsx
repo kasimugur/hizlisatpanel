@@ -23,7 +23,7 @@ const orders = [
   { id: "#2025011", name: "Emre B.", amount: 280, count: 3, date: "20.04.2024 09:50", status: "Hazırlanıyor" }
 ]
 
-const statusColor = {
+const statusColor: { [key: string]: string } = {
   "Hazırlanıyor": "bg-yellow-200 text-yellow-800",
     "Kargoda": "bg-blue-200 text-blue-800",
     "Teslim Edildi": "bg-green-200 text-green-800",
@@ -38,7 +38,7 @@ export default function Siparisler() {
     : orders.filter(order => order.status === filter)
 
   return (
-    <div className="p-6">
+    <div className="p-6 bg-white  rounded-md">
       <div className="flex justify-between mb-4">
         <Button>+ Yeni Sipariş</Button>
         <Input placeholder="Ara" className="w-1/3" />
@@ -47,7 +47,7 @@ export default function Siparisler() {
             {filter} <ChevronDown size={16} />
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            {["Tüm Durumlar", "Hazırlanıyor", "Kargoda", "Teslim Edildi"].map(status => (
+            {["Tüm Durumlar", "Hazırlanıyor", "Kargoda", "Teslim Edildi","İptal Edildi"].map(status => (
               <DropdownMenuItem key={status} onClick={() => setFilter(status)}>
                 {status}
               </DropdownMenuItem>
