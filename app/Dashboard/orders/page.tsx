@@ -7,6 +7,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Badge } from "@/components/ui/badge"
 import { ChevronDown } from "lucide-react"
 import { useState } from "react"
+import Link from "next/link"
 
 
 const orders = [
@@ -40,7 +41,7 @@ export default function Siparisler() {
   return (
     <div className="p-6 bg-white  rounded-md">
       <div className="flex justify-between mb-4">
-        <Button>+ Yeni Sipariş</Button>
+        <Button><Link href={'/dashboard/orders/new'} >+ Yeni Sipariş</Link></Button>
         <Input placeholder="Ara" className="w-1/3" />
         <DropdownMenu>
           <DropdownMenuTrigger className="flex items-center gap-2 border px-4 py-2 rounded-md">

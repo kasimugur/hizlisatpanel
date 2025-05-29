@@ -35,6 +35,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import Link from "next/link"
 
 
 
@@ -146,6 +147,8 @@ export default function Product() {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   )
+
+  
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = React.useState({})
@@ -169,6 +172,7 @@ export default function Product() {
     },
   })
 
+
   return (
     <div className="w-full bg-white rounded-sm p-4">
       <div className="flex items-center py-4">
@@ -180,7 +184,7 @@ export default function Product() {
           }
           className="max-w-sm"
         />
-        <Button className="bg-" variant={"outline"}>ürün ekle</Button>
+        <Button className="bg-" variant={"outline"}><Link href={'/dashboard/products/new'} >ürün ekle</Link></Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto">
