@@ -31,7 +31,7 @@ const statusColor: { [key: string]: string } = {
     "İptal Edildi": "bg-red-500 text-red-800",
 }
 
-export default function Siparisler() {
+export default function OrdersPage() {
   const [filter, setFilter] = useState("Tüm Durumlar")
 
   const filtered = filter === "Tüm Durumlar"

@@ -1,6 +1,5 @@
 "use client"
 
-import * as React from "react"
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -13,7 +12,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table"
-import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react"
+import { ChevronDown, MoreHorizontal } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -36,28 +35,22 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import Link from "next/link"
+import { useProducts } from "@/context/ProductContext"
+import { useState } from "react"
 
 
 
 export type Product = {
-  id: string
-  img: string
+  _id: string
   name: string
+  img: string
   price: number
   stock: number
 }
 
-// Örnek veri
-const data: Product[] = [
-  { id: "1",img:"", name: "Elbise", price: 129, stock: 12 },
-  { id: "2",img:"", name: "Kolye", price: 89, stock: 2 },
-  { id: "3",img:"", name: "Çanta", price: 199, stock: 7 },
-  { id: "4",img:"", name: "Ayakkabı", price: 279, stock: 4 },
-  { id: "5",img:"", name: "Gözlük", price: 59, stock: 8 },
-]
 export const columns: ColumnDef<Product>[] = [
   {
-    id: "select",
+    id: "_id",
     header: ({ table }) => (
       <Checkbox
         checked={
@@ -78,12 +71,21 @@ export const columns: ColumnDef<Product>[] = [
     enableSorting: false,
     enableHiding: false,
   },
-    {
-    accessorKey: "img",
-    header: "Görsel",
-    cell: ({ row }) => row.getValue("img"),
+  {
+  accessorKey: "image",
+  header: "Görsel",
+  cell: ({ row }) => {
+    const imgUrl = row.getValue("image") as string;
+    return (
+      <img
+        src={imgUrl}
+        alt="Ürün görseli"
+        className="w-14 h-14 object-cover rounded-md"
+      />
+    );
   },
-  
+},
+
   {
     accessorKey: "name",
     header: "Ürün Adı",
@@ -111,50 +113,46 @@ export const columns: ColumnDef<Product>[] = [
     ),
   },
 
-  // {
-  //   id: "actions",
-  //   enableHiding: false,
-  //   cell: ({ row }) => {
-  //     const payment = row.original
+  {
+    id: "actions",
+    enableHiding: false,
+    cell: ({ row }) => {
+      const payment = row.original
 
-  //     return (
-  //       <DropdownMenu>
-  //         <DropdownMenuTrigger asChild>
-  //           <Button variant="ghost" className="h-8 w-8 p-0">
-  //             <span className="sr-only">Open menu</span>
-  //             <MoreHorizontal />
-  //           </Button>
-  //         </DropdownMenuTrigger>
-  //         <DropdownMenuContent align="end">
-  //           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-  //           <DropdownMenuItem
-  //             onClick={() => navigator.clipboard.writeText(payment.id)}
-  //           >
-  //             Copy payment ID
-  //           </DropdownMenuItem>
-  //           <DropdownMenuSeparator />
-  //           <DropdownMenuItem>View customer</DropdownMenuItem>
-  //           <DropdownMenuItem>View payment details</DropdownMenuItem>
-  //         </DropdownMenuContent>
-  //       </DropdownMenu>
-  //     )
-  //   },
-  // },
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <span className="sr-only">Open menu</span>
+              <MoreHorizontal />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuItem
+              onClick={() => navigator.clipboard.writeText(payment.id)}
+            >
+              Copy payment ID
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>View customer</DropdownMenuItem>
+            <DropdownMenuItem>View payment details</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )
+    },
+  },
 ]
 
 export default function Product() {
-  const [sorting, setSorting] = React.useState<SortingState>([])
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
-  )
-
-  
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({})
-  const [rowSelection, setRowSelection] = React.useState({})
+  const { products, loading } = useProducts()
+  const [sorting, setSorting] = useState<SortingState>([])
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
+  const [rowSelection, setRowSelection] = useState({})
 
   const table = useReactTable({
-    data,
+    data:products,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -171,7 +169,8 @@ export default function Product() {
       rowSelection,
     },
   })
-
+console.log(products)
+  if (loading) return <div className="p-4">ürünler yükleniyor...</div>
 
   return (
     <div className="w-full bg-white rounded-sm p-4">
@@ -223,9 +222,9 @@ export default function Product() {
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
                     </TableHead>
                   )
                 })}
