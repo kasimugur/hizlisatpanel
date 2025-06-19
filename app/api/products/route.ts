@@ -13,59 +13,81 @@ export const GET = async () => {
     return NextResponse.json({ error: 'Ürünler alınamadı' }, { status: 500 })
   }
 }
+
 export const POST = async (req: NextRequest) => {
   try {
-    await dbConnect()
-    const body = await req.json()
+    await dbConnect();
+    const body = await req.json();
 
-    const { name, price, stock, sku, imageUrl, variants } = body
+    const errors = [];
 
-    if (!name || !price || !stock) {
-      return NextResponse.json(
-        { error: "Ürün adı, fiyat ve stok zorunludur." },
-        { status: 400 }
-      )
+    const {
+      name,
+      price,
+      stock,
+      sku,
+      image,
+      variants,
+      description
+    } = body;
+
+    // Zorunlu alanlar
+    if (!name || typeof name !== "string" || name.trim() === "") {
+      errors.push("Ürün adı zorunludur ve metin olmalıdır.");
     }
 
-    if (imageUrl && !imageUrl.match(/\.(jpg|jpeg|png|webp)$/i)) {
-      return NextResponse.json(
-        { error: "Geçerli bir görsel URL girin (jpg, png, webp)." },
-        { status: 400 }
-      )
+    if (price === undefined || isNaN(price) || price < 0) {
+      errors.push("Geçerli bir fiyat girilmelidir.");
     }
 
-    if (variants) {
-      for (const variant of variants) {
-        if (!variant.name || variant.name.trim() === "") {
-          return NextResponse.json(
-            { error: "Her varyant için bir isim girilmelidir." },
-            { status: 400 }
-          )
+    if (stock === undefined || isNaN(stock) || stock < 0) {
+      errors.push("Geçerli bir stok miktarı girilmelidir.");
+    }
+
+    if (sku !== undefined && typeof sku !== "string") {
+      errors.push("SKU değeri metin olmalıdır.");
+    }
+
+    if (image && !image.match(/^https?:\/\/.+\.(jpg|jpeg|png|webp)$/i)) {
+      errors.push("Geçerli bir görsel URL girin (http/https ile başlayan jpg, jpeg, png, webp).");
+    }
+
+    // Varyantlar kontrolü
+    if (variants && Array.isArray(variants)) {
+      variants.forEach((variant, i) => {
+        if (!variant.name || typeof variant.name !== "string") {
+          errors.push(`Varyant ${i + 1}: 'name' alanı zorunludur ve metin olmalıdır.`);
         }
-        if (!variant.options || !Array.isArray(variant.options) || variant.options.length === 0) {
-          return NextResponse.json(
-            { error: `Varyant '${variant.name}' için en az bir seçenek olmalıdır.` },
-            { status: 400 }
-          )
+
+        if (!Array.isArray(variant.options)) {
+          errors.push(`Varyant ${i + 1}: 'options' bir dizi olmalıdır.`);
+        } else if (variant.options.some(opt => typeof opt !== "string")) {
+          errors.push(`Varyant ${i + 1}: 'options' içinde yalnızca metin olmalıdır.`);
         }
-      }
+      });
     }
 
-    const product = await Product.create({
+    if (errors.length > 0) {
+      return NextResponse.json({ errors }, { status: 400 });
+    }
+
+    const newProduct = await Product.create({
       name,
       price: Number(price),
       stock: Number(stock),
-      sku: sku,
-      image: imageUrl,
+      sku,
+      image,
       variants: variants || [],
-    })
+      description: description || "",
+    });
 
-    return NextResponse.json(product, { status: 201 })
+    return NextResponse.json(newProduct, { status: 201 });
   } catch (error: any) {
-    console.error("POST /api/products error:", error)
+    console.error("POST /api/products error:", error);
     return NextResponse.json(
       { error: error.message || "Sunucu hatası oluştu." },
       { status: 500 }
-    )
+    );
   }
-}
+};
+
