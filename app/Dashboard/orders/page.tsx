@@ -5,38 +5,81 @@ import { Input } from "@/components/ui/input"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Badge } from "@/components/ui/badge"
-import { ChevronDown } from "lucide-react"
+import { ChevronDown, Eye, Pencil, Trash2 } from "lucide-react"
 import { useState } from "react"
 import Link from "next/link"
-
-
-const orders = [
-  { id: "#2025001", name: "Ayşe K.", amount: 320, count: 3, date: "12.04.2024 14:35", status: "Hazırlanıyor" },
-  { id: "#2025002", name: "Mehmet Y.", amount: 180, count: 1, date: "13.04.2024 09:20", status: "Kargoda" },
-  { id: "#2025003", name: "Elif S.", amount: 450, count: 5, date: "10.04.2024 18:45", status: "Teslim Edildi" },
-  { id: "#2025004", name: "Ahmet T.", amount: 275, count: 2, date: "14.04.2024 11:10", status: "İptal Edildi" },
-  { id: "#2025005", name: "Zeynep D.", amount: 600, count: 7, date: "15.04.2024 16:00", status: "Hazırlanıyor" },
-  { id: "#2025006", name: "Murat K.", amount: 150, count: 1, date: "16.04.2024 08:30", status: "İptal Edildi" },
-  { id: "#2025007", name: "Selin A.", amount: 390, count: 4, date: "11.04.2024 13:15", status: "Teslim Edildi" },
-  { id: "#2025008", name: "Deniz Ç.", amount: 220, count: 2, date: "17.04.2024 10:05", status: "Kargoda" },
-  { id: "#2025009", name: "Burak Ö.", amount: 310, count: 3, date: "18.04.2024 15:40", status: "Hazırlanıyor" },
-  { id: "#2025010", name: "Seda G.", amount: 500, count: 6, date: "19.04.2024 12:00", status: "Teslim Edildi" },
-  { id: "#2025011", name: "Emre B.", amount: 280, count: 3, date: "20.04.2024 09:50", status: "Hazırlanıyor" }
-]
-
+import { useOrders } from "@/context/OrdersContext"
+import OrderDetailCard from "@/components/OrderDetailCard"
+import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { toast } from "sonner"
+import { format } from "date-fns";
 const statusColor: { [key: string]: string } = {
   "Hazırlanıyor": "bg-yellow-200 text-yellow-800",
-    "Kargoda": "bg-blue-200 text-blue-800",
-    "Teslim Edildi": "bg-green-200 text-green-800",
-    "İptal Edildi": "bg-red-500 text-red-800",
+  "Kargoda": "bg-blue-200 text-blue-800",
+  "Teslim Edildi": "bg-green-200 text-green-800",
+  "İptal Edildi": "bg-red-500 text-red-800",
 }
 
 export default function OrdersPage() {
+  const { orders, refetch, loading } = useOrders()
   const [filter, setFilter] = useState("Tüm Durumlar")
+  const [selectedOrder, setSelectedOrder] = useState(null)
+  const [mode, setMode] = useState<"view" | "edit" | null>(null)
+  // Sheet açık mı kapalı mı durumu
+  const [open, setOpen] = useState(false);
+  const [dialog, setDialog] = useState(false)
+
+
+
+  const closeSheet = () => {
+    setOpen(false);
+    setSelectedOrder(null);
+  };
 
   const filtered = filter === "Tüm Durumlar"
     ? orders
     : orders.filter(order => order.status === filter)
+
+  const handleView = (order) => {
+    setSelectedOrder(order);
+    setMode("view");
+    setOpen(true);
+  };
+
+  const handleEdit = (order) => {
+    setSelectedOrder(order)
+    setMode("edit")
+  }
+  const handleDelete = async (id: string) => {
+    try {
+      const res = await fetch(`/api/orders/${id}`, {
+        method: "DELETE",
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Silme işlemi başarısız");
+      }
+
+      console.log("Sipariş başarıyla silindi:", id);
+      toast.success("Sipariş başarıyla silindi!");
+      refetch();
+    } catch (error) {
+      console.error("Silme hatası:", error);
+      toast.error("Sipariş silinemedi!");
+    }
+  };
+
+
+  if (loading) return <div>...yükleniyor</div>
 
   return (
     <div className="p-6 bg-white  rounded-md">
@@ -48,7 +91,7 @@ export default function OrdersPage() {
             {filter} <ChevronDown size={16} />
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            {["Tüm Durumlar", "Hazırlanıyor", "Kargoda", "Teslim Edildi","İptal Edildi"].map(status => (
+            {["Tüm Durumlar", "Hazırlanıyor", "Kargoda", "Teslim Edildi", "İptal Edildi"].map(status => (
               <DropdownMenuItem key={status} onClick={() => setFilter(status)}>
                 {status}
               </DropdownMenuItem>
@@ -72,25 +115,102 @@ export default function OrdersPage() {
           </TableHeader>
           <TableBody>
             {filtered.map(order => (
-              <TableRow key={order.id}>
-                <TableCell>{order.id}</TableCell>
-                <TableCell>{order.name}</TableCell>
-                <TableCell className="text-green-600">₺{order.amount}</TableCell>
-                <TableCell>{order.count} Ürün</TableCell>
-                <TableCell>{order.date}</TableCell>
+              <TableRow key={order._id}>
+                <TableCell>{order._id}</TableCell>
+                <TableCell>{order.customerName}</TableCell>
+                <TableCell className="text-green-600">₺{order.totalPrice}</TableCell>
+                <TableCell>{order.items.reduce((total, e) => total + e.quantity, 0)} Ürün</TableCell>
+                <TableCell>{format(new Date(order.createdAt), "dd.MM.yyyy HH:mm")}</TableCell>
                 <TableCell>
                   <Badge className={statusColor[order.status]}>{order.status}</Badge>
                 </TableCell>
                 <TableCell className="space-x-2 text-gray-500">
-                  <span className="cursor-pointer">🔍</span>
-                  <span className="cursor-pointer">✏️</span>
-                  <span className="cursor-pointer">🗑️</span>
+
+
+                  <Sheet open={open} onOpenChange={setOpen}>
+                    <SheetTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleView(order)}
+                      >
+                        <Eye className="w-4 h-4" />
+                      </Button>
+                    </SheetTrigger>
+                    <SheetContent side="right" className="w-full md:w-1/2 bg-white overflow-y-auto">
+
+                      {selectedOrder && (
+                        <OrderDetailCard order={selectedOrder} closeSheet={closeSheet} mode={mode} />
+                      )}
+
+
+                    </SheetContent>
+                  </Sheet>
+                  <Sheet open={open} onOpenChange={setOpen}>
+                    <SheetTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleEdit(order)}
+                      >  <Pencil className="w-4 h-4" />
+                      </Button>
+                    </SheetTrigger>
+                    <SheetContent side="right" className="w-full md:w-1/2 bg-white overflow-y-auto">
+
+
+                      {selectedOrder && (
+                        <OrderDetailCard order={selectedOrder} closeSheet={closeSheet} mode={mode} />
+                      )}
+
+
+                    </SheetContent>
+                  </Sheet>
+
+
+
+                  <Dialog open={dialog} onOpenChange={setDialog} >
+                    <DialogTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                      // onClick={() => handleDelete(order._id)}
+                      >
+
+
+                        <Trash2 className="w-4 h-4 text-red-500" />
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="bg-white">
+                      <DialogHeader>
+                        <DialogTitle>Silme Onayı</DialogTitle>
+                      </DialogHeader>
+                      <p>Bu siparişi silmek istediğinizden emin misiniz?</p>
+                      <DialogFooter>
+                        <Button onClick={() => {
+                          setDialog(false)
+                          toast.info("Sipariş silme işlemi iptal edildi!");
+                        }} variant="outline">İptal</Button>
+                        <Button variant="outline" onClick={() => handleDelete(order._id)}>
+                          Sil
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+
+
+
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </ScrollArea>
+
+      {/* 
+      {selectedOrder && (
+        <div className="mt-6">
+        </div>
+      )} */}
     </div>
   )
 }

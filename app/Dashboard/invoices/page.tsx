@@ -1,10 +1,9 @@
 'use client'
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon, FileText, Printer, Trash2 } from "lucide-react";
+import {  FileText, Printer, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { useState } from "react";
 
@@ -28,12 +27,10 @@ export default function FaturaListesi() {
           <Popover>
             <PopoverTrigger asChild>
               <Button variant="outline" className="gap-2">
-                <CalendarIcon size={18} />
                 {selectedDate ? format(selectedDate, "dd.MM.yyyy") : "Tarihe Göre Filtrele"}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0">
-              <Calendar style={{ backgroundColor: '#f0f0f0', color: '#333' }}  mode="single" selected={selectedDate!} onSelect={setSelectedDate} />
             </PopoverContent>
           </Popover>
         </div>

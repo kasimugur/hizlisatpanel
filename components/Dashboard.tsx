@@ -1,9 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Bell, Clock2, LogOut, LucideFileSignature, PlusCircle, ShoppingCart } from "lucide-react";
 import RecentOrdersCard from "./RecentOrdersCard";
-import Link from "next/link";
 import { ChartDash } from "./ChartDash";
 
 export default function DashboardPage() {
