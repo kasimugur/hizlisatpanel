@@ -79,10 +79,15 @@ export default function NewOrder() {
       customerEmail: customer.email,
       phone: customer.phone,
       address: customer.address,
-      items: product,
+      note: customer.note,
+      items: products,
       totalPrice,
       status: orderStatus,
+      cargoIncluded,
+      paymentStatus,
+      discount, // ← burası eklenecek
     };
+
 
     try {
       const res = await axios.post("/api/orders", orderData);
@@ -190,7 +195,7 @@ export default function NewOrder() {
             <SelectContent className="bg-white">
               <SelectItem value="Hazırlanıyor">Hazırlanıyor</SelectItem>
               <SelectItem value="Kargoda">Kargoda</SelectItem>
-              <SelectItem value="Teslim edildi">Teslim edildi</SelectItem>
+              <SelectItem value="Teslim Edildi">Teslim Edildi</SelectItem>
             </SelectContent>
           </Select>
         </div>

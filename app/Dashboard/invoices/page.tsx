@@ -3,25 +3,36 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import {  FileText, Printer, Trash2 } from "lucide-react";
+import { Printer, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { useState } from "react";
+import NewInvoiceSheet from "@/components/NewInvoiceSheet";
+import { useInvoices } from "@/context/InvoiceContext";
+import { toast } from "sonner";
+import axios from "axios";
 
-const invoices = [
-  { no: "#INV-00123", customer: "Ayşe K.", total: 320, date: "2025-05-20" },
-  { no: "#INV-00124", customer: "Mehmet Y.", total: 180, date: "2025-05-19" },
-];
 
-export default function FaturaListesi() {
+export default function InvoiceSelect() {
+  const { invoices, loading, deleteInvoice } = useInvoices()
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
+  const HandleDeleteInvoice = async (id: string) => {
+    console.log(id)
+    try {
+      await axios.delete(`/api/invoices/${id}`);
+      await deleteInvoice(id);
+      toast.success("Fatura başarıyla silindi");
+    } catch {
+      toast.error("Fatura silinirken hata oluştu");
+    }
+  }
+console.log(invoices,"bakılaca fatura bilgileri")
+  if (loading) return <p>Yükleniyor...</p>
   return (
     <div className="p-6 space-y-6 bg-white rounded-md">
       {/* Üst Araçlar */}
       <div className="flex flex-col md:flex-row gap-4 justify-between items-center">
-        <Button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold">
-          📤 Yeni Fatura Kes
-        </Button>
+        <NewInvoiceSheet />
         <div className="flex gap-3 w-full md:w-auto">
           <Input placeholder="🔍 Ara..." className="max-w-xs" />
           <Popover>
@@ -35,6 +46,7 @@ export default function FaturaListesi() {
           </Popover>
         </div>
       </div>
+
 
       {/* Fatura Tablosu */}
       <Card>
@@ -58,15 +70,22 @@ export default function FaturaListesi() {
                   <td className="p-3 text-green-700 font-semibold">₺{fatura.total}</td>
                   <td className="p-3">{format(new Date(fatura.date), "dd.MM.yyyy")}</td>
                   <td className="p-3">
-                    <Button variant="link" className="p-0 text-blue-600 font-medium">
+                    <Button onClick={() => {
+                      if (!fatura?._id) {
+                        console.error("fatura._id undefined");
+                        return;
+                      }
+                      window.open(`/api/invoices/${fatura.no}/pdf`, "_blank");
+                    }}
+                      variant="link" className="p-0 text-blue-600 font-medium">
                       Görüntüle
                     </Button>
                   </td>
                   <td className="p-3 text-right space-x-2">
-                    <Button size="icon" variant="ghost">
+                    <Button onClick={() => window.open(`/api/invoices/${fatura._id}/pdf?download=true`, "_blank")} size="icon" variant="ghost">
                       <Printer size={16} />
                     </Button>
-                    <Button size="icon" variant="ghost">
+                    <Button onClick={() => HandleDeleteInvoice(fatura._id)} size="icon" variant="ghost">
                       <Trash2 size={16} className="text-red-500" />
                     </Button>
                   </td>

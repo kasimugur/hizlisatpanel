@@ -13,15 +13,33 @@ export const GET = async () => {
     return NextResponse.json({ error: "Siparişler alınamadı" }, { status: 500 })
   }
 }
-
 export const POST = async (req: NextRequest) => {
   try {
     await dbConnect()
     const body = await req.json()
 
-    const { customerName, customerEmail, phone, address, items, totalPrice, status } = body
+    const {
+      customerName,
+      customerEmail,
+      phone,
+      address,
+      note,
+      items,
+      totalPrice,
+      status,
+      cargoIncluded,
+      paymentStatus,
+      discount,
+    } = body
 
-    if (!customerName || !customerEmail || !address || !items || items.length === 0 || !totalPrice) {
+    if (
+      !customerName ||
+      !customerEmail ||
+      !address ||
+      !items ||
+      items.length === 0 ||
+      !totalPrice
+    ) {
       return NextResponse.json(
         { error: "Zorunlu alanlar eksik: isim, e-posta, adres, ürünler ve toplam tutar." },
         { status: 400 }
@@ -33,9 +51,13 @@ export const POST = async (req: NextRequest) => {
       customerEmail,
       phone,
       address,
+      note,
       items,
       totalPrice: Number(totalPrice),
-      status: status || "Hazırlanıyor"
+      status: status || "Hazırlanıyor",
+      cargoIncluded: cargoIncluded ?? true,
+      paymentStatus: paymentStatus || "Kapıda ödeme",
+      discount: discount || "0",
     })
 
     return NextResponse.json(order, { status: 201 })
@@ -44,3 +66,4 @@ export const POST = async (req: NextRequest) => {
     return NextResponse.json({ error: error.message || "Sunucu hatası" }, { status: 500 })
   }
 }
+
