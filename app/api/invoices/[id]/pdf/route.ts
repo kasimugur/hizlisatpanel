@@ -24,28 +24,51 @@ export const GET = async (req: NextRequest, { params }) => {
     if (!invoice) {
       return NextResponse.json({ error: "Fatura bulunamadı" }, { status: 404 });
     }
-
     const html = `
-      <html>
-        <head><style>body{font-family:sans-serif}</style></head>
-        <body>
-          <h1>Fatura #${escapeHtml(invoice.no.toString())}</h1>
-          <p>Müşteri: ${escapeHtml(invoice.customer)}</p>
-          <p>Tutar: ₺${escapeHtml(invoice.total.toString())}</p>
-          <p>Tarih: ${new Date(invoice.date).toLocaleDateString("tr-TR")}</p>
-          <ul>
-            ${invoice.items
-              .map(
-                (item) =>
-                  `<li>${escapeHtml(item.name)} - ${escapeHtml(
-                    item.quantity.toString()
-                  )} x ${escapeHtml(item.price.toString())} ₺</li>`
-              )
-              .join("")}
-          </ul>
-        </body>
-      </html>
-    `;
+  <html>
+  <head>
+    <style>
+      body { font-family: sans-serif; padding: 40px; }
+      h1 { text-align: center; margin-bottom: 40px; }
+      table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+      th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+      th { background-color: #f5f5f5; }
+      .footer { margin-top: 40px; text-align: right; }
+    </style>
+  </head>
+  <body>
+    <h1>FATURA #${escapeHtml(invoice.no)}</h1>
+    <p><strong>Müşteri:</strong> ${escapeHtml(invoice.customer)}</p>
+    <p><strong>Tarih:</strong> ${new Date(invoice.date).toLocaleDateString("tr-TR")}</p>
+
+    ${invoice.items?.length ? `
+      <table>
+        <thead>
+          <tr>
+            <th>Ürün</th>
+            <th>Adet</th>
+            <th>Fiyat</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${invoice.items.map(item => `
+            <tr>
+              <td>${escapeHtml(item.name)}</td>
+              <td>${item.quantity}</td>
+              <td>₺${item.price.toFixed(2)}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    ` : ""}
+
+    <div class="footer">
+      <p><strong>Toplam Tutar:</strong> ₺${invoice.total.toFixed(2)}</p>
+    </div>
+  </body>
+  </html>
+`;
+
 
     let browser;
     try {

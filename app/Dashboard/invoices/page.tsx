@@ -75,7 +75,7 @@ console.log(invoices,"bakılaca fatura bilgileri")
                         console.error("fatura._id undefined");
                         return;
                       }
-                      window.open(`/api/invoices/${fatura.no}/pdf`, "_blank");
+                      window.open(`/api/invoices/${fatura._id}/pdf`, "_blank");
                     }}
                       variant="link" className="p-0 text-blue-600 font-medium">
                       Görüntüle

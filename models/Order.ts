@@ -1,25 +1,45 @@
 // models/Order.ts
-import mongoose, { Schema, model, models } from "mongoose"
+import mongoose, { Schema, model, models } from "mongoose";
 
 const OrderSchema = new Schema(
   {
-    customerName: { type: String, required: true },
-    customerEmail: { type: String, required: true },
-    phone: { type: String },
-    address: { type: String, required: true },
-    note: { type: String, default: "", trim: true }, // ✅ Eklendi
+    customerName: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    customerEmail: {
+      type: String,
+      required: true,
+      trim: true,
+      lowercase: true,
+    },
+    phone: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    address: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    note: {
+      type: String,
+      default: "",
+      trim: true,
+    },
     items: [
       {
         name: { type: String, required: true },
-        quantity: { type: Number, required: true },
-        price: { type: Number, required: true },
+        quantity: { type: Number, required: true, min: 1 },
+        price: { type: Number, required: true, min: 0 },
       },
     ],
-    totalPrice: { type: Number, required: true },
-    status: {
-      type: String,
-      enum: ["Hazırlanıyor", "Kargoda", "Teslim Edildi", "İptal Edildi"],
-      default: "Hazırlanıyor",
+    totalPrice: {
+      type: Number,
+      required: true,
+      min: 0,
     },
     discount: {
       type: String,
@@ -29,14 +49,31 @@ const OrderSchema = new Schema(
     cargoIncluded: {
       type: Boolean,
       default: true,
-    }, // ✅ Eklendi
+    },
+    status: {
+      type: String,
+      enum: ["Hazırlanıyor", "Kargoda", "Teslim Edildi", "İptal Edildi"],
+      default: "Hazırlanıyor",
+    },
     paymentStatus: {
       type: String,
       enum: ["Kapıda ödeme", "Ödendi", "Ödenecek"],
       default: "Kapıda ödeme",
-    }, // ✅ Eklendi
+    },
+
+    // 🔽 İleride entegrasyonlar için hazırlık (şimdilik opsiyonel)
+    shipment: {
+      trackingCode: { type: String, default: "" },
+      company: { type: String, default: "" },
+      status: {
+        type: String,
+        enum: ["Hazırlanıyor", "Yolda", "Teslim Edildi", "İptal Edildi"],
+        default: "Hazırlanıyor",
+      },
+      shippedAt: { type: Date, default: null },
+    },
   },
   { timestamps: true }
-)
+);
 
-export default models.Order || model("Order", OrderSchema)
+export default models.Order || model("Order", OrderSchema);

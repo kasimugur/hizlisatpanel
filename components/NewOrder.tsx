@@ -29,11 +29,6 @@ export default function NewOrder() {
   const [paymentStatus, setPaymentStatus] = useState("Kapıda ödeme");
   const [orderStatus, setOrderStatus] = useState("Hazırlanıyor");
 
-  // const products = [
-  //   { name: "V Yaka Bluz", price: 89 },
-  //   { name: "Kot Pantolon", price: 120 },
-  //   { name: "Gömlek", price: 100 },
-  // ];
 
   const handleProductChange = (index, field, value) => {
     const updated = [...product];
@@ -80,22 +75,23 @@ export default function NewOrder() {
       phone: customer.phone,
       address: customer.address,
       note: customer.note,
-      items: products,
+      items: product,
       totalPrice,
       status: orderStatus,
       cargoIncluded,
       paymentStatus,
-      discount, // ← burası eklenecek
+      discount, 
     };
 
-
+    
+    console.log(orderData, "orderData bakılacak")
     try {
       const res = await axios.post("/api/orders", orderData);
       if (res.status === 200 || res.status === 201) {
         router.push("/dashboard/orders");
         refetch();
         toast.success("Sipariş başarıyla eklendi!");
-
+        
       }
     } catch (err) {
       console.error("Sipariş gönderilemedi:", err);
