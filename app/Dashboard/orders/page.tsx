@@ -36,18 +36,18 @@ export default function OrdersPage() {
   // Sheet açık mı kapalı mı durumu
   const [open, setOpen] = useState(false);
   const [dialog, setDialog] = useState(false)
-
+  const [filterMap, setFilterMap] = useState('')
 
 
   const closeSheet = () => {
     setOpen(false);
     setSelectedOrder(null);
   };
-
-  const filtered = filter === "Tüm Durumlar"
-    ? orders
-    : orders.filter(order => order.status === filter)
-
+const filtered = orders.filter(
+    (order) =>
+      (filter === 'Tüm Durumlar' || order.status === filter) &&
+      order.customerName.toLowerCase().includes(filterMap.toLowerCase())
+  );
   const handleView = (order) => {
     setSelectedOrder(order);
     setMode("view");
@@ -85,12 +85,12 @@ export default function OrdersPage() {
     <div className="p-6 bg-white  rounded-md">
       <div className="flex justify-between mb-4">
         <Button><Link href={'/dashboard/orders/new'} >+ Yeni Sipariş</Link></Button>
-        <Input placeholder="Ara" className="w-1/3" />
+        <Input onChange={(e) => setFilterMap(e.target.value)} placeholder="Ara" className="w-1/3" />
         <DropdownMenu>
           <DropdownMenuTrigger className="flex items-center gap-2 border px-4 py-2 rounded-md">
             {filter} <ChevronDown size={16} />
           </DropdownMenuTrigger>
-          <DropdownMenuContent>
+          <DropdownMenuContent className="bg-white">
             {["Tüm Durumlar", "Hazırlanıyor", "Kargoda", "Teslim Edildi", "İptal Edildi"].map(status => (
               <DropdownMenuItem key={status} onClick={() => setFilter(status)}>
                 {status}
@@ -114,7 +114,7 @@ export default function OrdersPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filtered.map(order => (
+            { filtered.map(order => (
               <TableRow key={order._id}>
                 <TableCell>{order._id}</TableCell>
                 <TableCell>{order.customerName}</TableCell>

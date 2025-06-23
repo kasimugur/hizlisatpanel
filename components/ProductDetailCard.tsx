@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import axios from "axios";
+import { useProducts } from "@/context/ProductContext";
+import { Label } from "./ui/label";
 
 export default function ProductDetailCard({
   product,
@@ -17,6 +19,7 @@ export default function ProductDetailCard({
   mode: "view" | "edit",
   closeSheet: () => void
 }) {
+  const { fetchProducts, loading } = useProducts()
   const [formData, setFormData] = useState({
     name: product.name || "",
     price: product.price || 0,
@@ -63,6 +66,7 @@ export default function ProductDetailCard({
       };
 
       await axios.patch(`/api/products/${product._id}`, payload);
+      await fetchProducts();
       toast.success("✅ Ürün başarıyla güncellendi");
       closeSheet();
     } catch (error: any) {
@@ -74,46 +78,109 @@ export default function ProductDetailCard({
   return (
     <Card className="max-w-full md:max-w-2xl border-0  mt-6 shadow-lg bg-white">
       <CardHeader>
-        <CardTitle className="text-xl flex items-center gap-2">🛒 Ürün Detayı</CardTitle>
+        {/* <CardTitle className="text-xl flex items-center gap-2">🛒 Ürün Detayı</CardTitle> */}
       </CardHeader>
       <CardContent className="space-y-6">
         {mode === "edit" ? (
-          <div className="space-y-4">
-            <Input value={formData.name} onChange={e => handleChange("name", e.target.value)} placeholder="Ürün Adı" />
-            <Input type="number" value={formData.price} onChange={e => handleChange("price", parseFloat(e.target.value) || 0)} placeholder="Fiyat" />
-            <Input type="number" value={formData.stock} onChange={e => handleChange("stock", parseInt(e.target.value) || 0)} placeholder="Stok" />
-            <Input value={formData.image} onChange={e => handleChange("image", e.target.value)} placeholder="Görsel URL" />
+           <div className="p-6">
+      <h2 className="text-xl font-bold mb-4">Ürün Ekle/Düzenle</h2>
+      <div className="space-y-4 max-w-md">
+        {/* Ürün Adı */}
+        <div className="space-y-2">
+          <Label htmlFor="name">Ürün Adı</Label>
+          <Input
+            id="name"
+            value={formData.name}
+            onChange={(e) => handleChange('name', e.target.value)}
+            placeholder="Ürün Adı"
+            className="w-full"
+          />
+        </div>
 
-            <Separator />
-            <h4 className="font-semibold">🎨 Varyantlar</h4>
+        {/* Fiyat */}
+        <div className="space-y-2">
+          <Label htmlFor="price">Fiyat (₺)</Label>
+          <Input
+            id="price"
+            type="number"
+            value={formData.price}
+            onChange={(e) => handleChange('price', parseFloat(e.target.value) || 0)}
+            placeholder="Fiyat"
+            className="w-full"
+          />
+        </div>
 
-            {formData.variants.map((variant, index) => (
-              <div key={index} className="space-y-2 border p-2 rounded-md">
-                <Input
-                  value={variant.name}
-                  onChange={e => handleVariantChange(index, "name", e.target.value)}
-                  placeholder="Varyant adı (ör. Renk, Beden)"
-                />
-                <Input
-                  value={variant.options}
-                  onChange={e => handleVariantChange(index, "options", e.target.value)}
-                  placeholder="Seçenekler (ör. m, s, l)"
-                />
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="destructive"
-                  onClick={() => removeVariant(index)}
-                >
-                  Varyantı Sil
-                </Button>
+        {/* Stok */}
+        <div className="space-y-2">
+          <Label htmlFor="stock">Stok</Label>
+          <Input
+            id="stock"
+            type="number"
+            value={formData.stock}
+            onChange={(e) => handleChange('stock', parseInt(e.target.value) || 0)}
+            placeholder="Stok"
+            className="w-full"
+          />
+        </div>
+
+        {/* Görsel URL */}
+        <div className="space-y-2">
+          <Label htmlFor="image">Görsel URL</Label>
+          <Input
+            id="image"
+            value={formData.image}
+            onChange={(e) => handleChange('image', e.target.value)}
+            placeholder="Görsel URL"
+            className="w-full"
+          />
+        </div>
+
+        <Separator />
+
+        {/* Varyantlar */}
+        <div className="space-y-2">
+          <h4 className="font-semibold">🎨 Varyantlar</h4>
+          {formData.variants.map((variant, index) => (
+            <div key={index} className="border p-4 rounded-md space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor={`variant-name-${index}`}>Varyant Adı</Label>
+                  <Input
+                    id={`variant-name-${index}`}
+                    value={variant.name}
+                    onChange={(e) => handleVariantChange(index, 'name', e.target.value)}
+                    placeholder="Ör. Renk, Beden"
+                    className="w-full"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor={`variant-options-${index}`}>Seçenekler</Label>
+                  <Input
+                    id={`variant-options-${index}`}
+                    value={variant.options}
+                    onChange={(e) => handleVariantChange(index, 'options', e.target.value)}
+                    placeholder="Ör. Kırmızı, Mavi veya S, M, L"
+                    className="w-full"
+                  />
+                </div>
               </div>
-            ))}
+              <Button
+                type="button"
+                size="sm"
+                variant="ghost"
+                onClick={() => removeVariant(index)}
+              >
+              Sil
+              </Button>
+            </div>
+          ))}
+          <Button type="button" onClick={addVariant} variant="outline" className="mt-2">
+            + Varyant Ekle
+          </Button>
+        </div>
 
-            <Button type="button" onClick={addVariant} variant="outline">
-              + Varyant Ekle
-            </Button>
-          </div>
+      </div>
+    </div>
         ) : (
 
           <div className="space-y-6 text-sm">

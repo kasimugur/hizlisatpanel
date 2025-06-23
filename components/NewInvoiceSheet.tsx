@@ -81,22 +81,32 @@ export default function NewInvoiceSheet() {
     }
 
     try {
-      const payload = {
-        ...formData,
-        total: Number(formData.total),
-        date: formData.date.toISOString()
+      // Müşteriye daha önce fatura kesilmiş mi kontrol et
+      const checkRes = await axios.get(`/api/invoices?customer=${encodeURIComponent(formData.customer)}`);
+      const existingInvoices = checkRes.data;
+
+      if (existingInvoices.length > 0) {
+        toast.warning(
+          `Bu müşteriye daha önce  fatura kesilmiş!`
+        );
+      } else {
+        const payload = {
+          ...formData,
+          total: Number(formData.total),
+          date: formData.date.toISOString()
+        }
+        console.log(payload)
+        const res = await axios.post("/api/invoices", payload)
+        addInvoice(res.data)
+        toast.success("✅ Fatura başarıyla oluşturuldu")
+        setFormData({
+          orderId: "",
+          customer: "",
+          total: 0,
+          date: new Date()
+        })
+        setOpen(false)
       }
-      console.log(payload)
-      const res = await axios.post("/api/invoices", payload)
-      addInvoice(res.data)
-      toast.success("✅ Fatura başarıyla oluşturuldu")
-      setFormData({
-        orderId: "",
-        customer: "",
-        total: 0,
-        date: new Date()
-      })
-      setOpen(false)
     } catch (err) {
       console.error("Fatura oluşturulamadı:", err)
       toast.error("❌ Fatura oluşturulurken bir hata oluştu")

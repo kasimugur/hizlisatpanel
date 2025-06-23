@@ -19,6 +19,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import ImageInput from "./ImageInput";
 import axios from "axios";
 import { useProducts } from "@/context/ProductContext";
+import { toast } from "sonner";
 
 const formSchema = z.object({
   name: z.string().min(1, "Ürün adı zorunlu"),
@@ -75,6 +76,7 @@ export default function NewProduct() {
     try {
       await axios.post('/api/products', fullData)
       await fetchProducts()
+      toast.success('Ürün başarılı bir şekilde eklendi.')
       form.reset()
       setVaryant([{ tip: '', deger: '' }])
     } catch (error) {
