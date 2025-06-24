@@ -9,8 +9,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 import axios from 'axios';
+import { useSettings } from '@/context/SettingsContext';
 
 export default function SettingsPage() {
+  const { updateSettings } = useSettings()
   const [settings, setSettings] = useState({
     company: {
       name: '',
@@ -19,6 +21,10 @@ export default function SettingsPage() {
       mersisNumber: '',
       kepAddress: '',
       address: '',
+      email: '',
+      website: '',
+      city: '',
+      postalCode: '',
       phone: '',
       logo: '',
     },
@@ -27,6 +33,8 @@ export default function SettingsPage() {
       startNumber: 10001,
       vatRate: 20,
       invoiceType: 'e-Arşiv',
+      currency: 'TRY',
+      timezone: '',
       language: 'TR',
       issueDelayDays: 7,
       note: 'Teşekkür ederiz!',
@@ -72,6 +80,7 @@ export default function SettingsPage() {
     async function fetchSettings() {
       try {
         const res = await axios.get('/api/settings');
+
         setSettings(res.data);
       } catch (error) {
         console.error('Ayarlar yüklenemedi:', error);
@@ -82,17 +91,37 @@ export default function SettingsPage() {
   }, []);
 
   const handleSave = async () => {
-    try {
-      const res = await axios.patch('/api/settings', settings);
-      if (res.status === 200) {
-        toast.success('Ayarlar başarıyla kaydedildi!');
-      }
-    } catch (error) {
-      console.error('Ayarlar kaydedilemedi :', error);
-      toast.error('Ayarlar kaydedilemedi!');
+  console.log(settings, " kaydet butonundaki settings");
+  
+  try {
+    const res = await axios.patch('/api/settings', settings);
+    
+    if (res.status === 200) {
+      await updateSettings(settings);
+      toast.success('Ayarlar başarıyla kaydedildi!');
+    } else {
+      throw new Error(`Beklenmeyen durum: ${res.status}`);
     }
-  };
 
+  } catch (error:any) {
+    console.error('Ayarlar kaydedilemedi:', error.response?.data || error.message);
+    toast.error('Ayarlar kaydedilemedi!');
+  }
+};
+
+useEffect(() => {
+    async function fetchSettings() {
+      try {
+        const res = await axios.post('/api/settings');
+
+        setSettings(res.data);
+      } catch (error) {
+        console.error('Ayarlar yüklenemedi:', error);
+        toast.error('Ayarlar yüklenemedi!');
+      }
+    }
+    fetchSettings();
+  }, []);
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, field: 'company' | 'customization') => {
     const file = e.target.files?.[0];
     if (file) {
@@ -206,6 +235,63 @@ export default function SettingsPage() {
                   }
                 />
               </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="email">E-posta</Label>
+                <Input
+                  id="email"
+                  value={settings.company.email}
+                  onChange={(e) =>
+                    setSettings({
+                      ...settings,
+                      company: { ...settings.company, email: e.target.value },
+                    })
+                  }
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="website">Web Sitesi</Label>
+                <Input
+                  id="website"
+                  value={settings.company.website}
+                  onChange={(e) =>
+                    setSettings({
+                      ...settings,
+                      company: { ...settings.company, website: e.target.value },
+                    })
+                  }
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="city">İl / İlçe</Label>
+                <Input
+                  id="city"
+                  value={settings.company.city}
+                  onChange={(e) =>
+                    setSettings({
+                      ...settings,
+                      company: { ...settings.company, city: e.target.value },
+                    })
+                  }
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="postalCode">Posta Kodu</Label>
+                <Input
+                  id="postalCode"
+                  value={settings.company.postalCode}
+                  onChange={(e) =>
+                    setSettings({
+                      ...settings,
+                      company: { ...settings.company, postalCode: e.target.value },
+                    })
+                  }
+                />
+              </div>
+
               <div className="space-y-2">
                 <Label htmlFor="phone">Telefon</Label>
                 <Input
@@ -286,7 +372,7 @@ export default function SettingsPage() {
                   <SelectTrigger id="vat-rate">
                     <SelectValue placeholder="KDV Oranı" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className='bg-white'>
                     <SelectItem value="0">0%</SelectItem>
                     <SelectItem value="1">1%</SelectItem>
                     <SelectItem value="10">10%</SelectItem>
@@ -308,12 +394,40 @@ export default function SettingsPage() {
                   <SelectTrigger id="invoice-type">
                     <SelectValue placeholder="Fatura Tipi" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className='bg-white'>
                     <SelectItem value="e-Arşiv">e-Arşiv</SelectItem>
                     <SelectItem value="Manuel">Manuel</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
+              <div className="space-y-2">
+                <Label htmlFor="currency">Para Birimi</Label>
+                <Input
+                  id="currency"
+                  value={settings.invoice.currency}
+                  onChange={(e) =>
+                    setSettings({
+                      ...settings,
+                      invoice: { ...settings.invoice, currency: e.target.value },
+                    })
+                  }
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="timezone">Zaman Dilimi (örn. Europe/Istanbul)</Label>
+                <Input
+                  id="timezone"
+                  value={settings.invoice.timezone}
+                  onChange={(e) =>
+                    setSettings({
+                      ...settings,
+                      invoice: { ...settings.invoice, timezone: e.target.value },
+                    })
+                  }
+                />
+              </div>
+
 
               <div className="space-y-2">
                 <Label htmlFor="issue-delay">Fatura Düzenlenme Süresi (Gün)</Label>
@@ -573,7 +687,7 @@ export default function SettingsPage() {
               <CardTitle>Güvenlik</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              
+
               <div className="space-y-2">
                 <Label htmlFor="session-timeout">Oturum Süresi (Dakika)</Label>
                 <Input

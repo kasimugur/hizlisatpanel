@@ -1,17 +1,14 @@
+'use client'
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "./ui/button"
+import { useOrders } from "@/context/OrdersContext"
+import { useRouter } from "next/navigation"
 
 export default function RecentOrdersCard() {
-  const orders = [
-     { id: 1, customer: "Ayşe K.", quantity: 2, amount: 300, status: "Hazırlanıyor" },
-  { id: 2, customer: "Mehmet Y.", quantity: 1, amount: 120, status: "Kargoda" },
-  { id: 3, customer: "Fatma A.", quantity: 3, amount: 450, status: "Teslim Edildi" },
-  { id: 4, customer: "Ali V.", quantity: 1, amount: 150, status: "İptal Edildi" },
-  { id: 5, customer: "Ahmet K.", quantity: 2, amount: 280, status: "Hazırlanıyor" },
-  { id: 6, customer: "Zeynep D.", quantity: 1, amount: 100, status: "Hazırlanıyor" }
-  ]
-
+  const { orders } = useOrders()
+  const Router = useRouter()
+  
   const statusColor: { [key: string]: string } = {
     "Hazırlanıyor": "bg-yellow-200 text-yellow-800",
     "Kargoda": "bg-blue-200 text-blue-800",
@@ -27,15 +24,15 @@ export default function RecentOrdersCard() {
         <span>Tutar</span>
         <span>Durum</span>
       </div>
-      {orders.slice(0,5).map((order, index) => (
+      {orders.slice(0, 5).map((order, index) => (
         <div key={index} className="grid grid-cols-4 text-sm items-center py-1">
-          <span>{order.customer}</span>
-          <span>{order.quantity}</span>
-          <span>{order.amount}</span>
+          <span>{order.customerName}</span>
+          <span>{order.items.map(e => e.quantity)}</span>
+          <span>{order.totalPrice}</span>
           <Badge className={statusColor[order.status]}>{order.status}</Badge>
         </div>
       ))}
-      <Button className="w-full mt-5 bg-blue-500 hover:bg-blue-400 text-white
+      <Button onClick={() => Router.push('/dashboard/orders/')} className="w-full mt-5 bg-blue-500 hover:bg-blue-400 text-white
  " variant={"default"} >Tüm siparişler</Button>
     </>
   )

@@ -20,36 +20,37 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   if (!settings) {
     return NextResponse.json({ error: "Ayarlar bulunamadı" }, { status: 500 })
   }
-  console.log(settings)
+  console.log(settings.company.name)
+const html = generateInvoiceHtml({
+  invoiceNo: invoice.no,
+  date: invoice.date,
+  items: invoice.items,
+  discount: invoice.discount,
+  vatRate: settings.invoice.vatRate || 20, // 💡 Artık settings.invoice altında
 
-  const html = generateInvoiceHtml({
-    invoiceNo: invoice.no,
-    date: invoice.date,
-    items: invoice.items,
-    discount: invoice.discount,
-    vatRate: settings.vatRate || 20,
-    issuer: {
-      isCompany: settings.isCompany,
-      name: settings.name,
-      address: settings.address,
-      taxOffice: settings.taxOffice,
-      taxNumber: settings.taxNumber,
-      phone: settings.phone,
-      email: settings.email,
-      mersisNo: settings.mersisNumber,
-      kepAddress: settings.kepAddress,
-      iban: settings.iban,
-      website: settings.website,
-    },
-    customer: {
-      name: invoice.customer,
-      address: invoice.address,
-      taxOffice: invoice.customerTaxOffice,
-      taxNumber: invoice.customerTaxNumber,
-      phone: invoice.customerPhone,
-      email: invoice.customerEmail,
-    },
-  })
+  issuer: {
+    isCompany: true, // ❗️(manuel belirleniyor, settings yapısında doğrudan yok)
+    name: settings.company.name,
+    address: settings.company.address,
+    taxOffice: settings.company.taxOffice,
+    taxNumber: settings.company.taxNumber,
+    phone: settings.company.phone,
+    email: "", // settings.company.email yok, eğer varsa ekle
+    mersisNo: settings.company.mersisNumber,
+    kepAddress: settings.company.kepAddress,
+    iban: settings.payment.iban, // 💡 IBAN artık payment altında
+    website: "", // settings içinde görünmüyor, varsa eklenir
+  },
+
+  customer: {
+    name: invoice.customer,
+    address: invoice.address,
+    taxOffice: invoice.customerTaxOffice,
+    taxNumber: invoice.customerTaxNumber,
+    phone: invoice.customerPhone,
+    email: invoice.customerEmail,
+  },
+})
 
   const pdfBuffer = await generateInvoicePdf(html)
 

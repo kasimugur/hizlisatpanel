@@ -16,11 +16,12 @@ import axios from "axios";
 import { useProducts } from "@/context/ProductContext";
 import { useOrders } from "@/context/OrdersContext";
 import { toast } from "sonner";
+import { useSettings } from "@/context/SettingsContext";
 
 export default function NewOrder() {
   const { products } = useProducts()
   const { refetch } = useOrders()
-
+  const { settings} = useSettings()
   const router = useRouter();
   const [customer, setCustomer] = useState({ name: "", email: "", phone: "", address: "", note: "" });
   const [product, setProduct] = useState([{ name: "", quantity: 1, price: 0 }]);
@@ -39,7 +40,7 @@ export default function NewOrder() {
     }
     setProduct(updated);
   };
-
+console.log(settings?.shipping.fixedPrice,"ayarlar ayarlamajk için")
   const addProduct = () => setProduct([...product, { name: "", quantity: 1, price: 0 }]);
 
   const removeProduct = (index) => {
@@ -59,7 +60,7 @@ export default function NewOrder() {
       discountVal = parseFloat(discount) || 0;
     }
 
-    const cargoFee = cargoIncluded ? 20 : 0; // Kargo dahilsə 20 TL ekle
+    const cargoFee = cargoIncluded ? Number(settings?.shipping.fixedPrice) : 0; 
     // Negatif indirim kontrolü
     if (discountVal < 0) discountVal = 0;
 
@@ -80,10 +81,10 @@ export default function NewOrder() {
       status: orderStatus,
       cargoIncluded,
       paymentStatus,
-      discount, 
+      discount,
     };
 
-    
+
     console.log(orderData, "orderData bakılacak")
     try {
       const res = await axios.post("/api/orders", orderData);
@@ -91,7 +92,7 @@ export default function NewOrder() {
         router.push("/dashboard/orders");
         refetch();
         toast.success("Sipariş başarıyla eklendi!");
-        
+
       }
     } catch (err) {
       console.error("Sipariş gönderilemedi:", err);

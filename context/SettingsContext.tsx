@@ -18,6 +18,10 @@ type SettingsType = {
     mersisNumber: string;
     kepAddress: string;
     address: string;
+    email: string;
+    website: string;
+    city: string;
+    postalCode: string;
     phone: string;
     logo: string;
   };
@@ -34,6 +38,8 @@ type SettingsType = {
     vatRate: number;
     invoiceType: string;
     language: string;
+    currency: String,
+    timezone: String,
     issueDelayDays: number;
     note: string;
   };
@@ -92,15 +98,29 @@ export const SettingsProvider = ({ children }: { children: React.ReactNode }) =>
     }
     fetchSettings()
   }, [])
+  
+const updateSettings = async (newSettings: Partial<SettingsType>) => {
+  console.log(newSettings, " context içindeki gönderile newSettings");
+  
+  if (!newSettings) {
+    console.error("Hata: newSettings undefined veya null");
+    throw new Error("newSettings undefined veya null");
+  }
 
-  const updateSettings = async (newSettings: Partial<SettingsType>) => {
   try {
     const response = await axios.patch('/api/settings', newSettings, {
       headers: { 'Content-Type': 'application/json' },
     });
-    setSettings(response.data);
-  } catch (err) {
-    console.error("Ayarlar güncellenemedi", err);
+
+    if (response.status === 200) {
+      setSettings(response.data);
+    } else {
+      throw new Error(`Beklenmeyen durum: ${response.status}`);
+    }
+
+  } catch (err:any) {
+    console.error("Ayarlar güncellenemedi:", err.response?.data || err.message);
+    throw err; // Hata fırlat
   }
 };
 

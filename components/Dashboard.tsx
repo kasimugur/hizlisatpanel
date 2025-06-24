@@ -1,21 +1,30 @@
+'use client'
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Bell, Clock2, LogOut, LucideFileSignature, PlusCircle, ShoppingCart } from "lucide-react";
 import RecentOrdersCard from "./RecentOrdersCard";
 import { ChartDash } from "./ChartDash";
+import { useProducts } from "@/context/ProductContext";
 
 export default function DashboardPage() {
+
+  const { products } = useProducts()
+  
   const FastTransactions = [
     { label: "Ürün Ekle", href: "/urun-ekle", icon: PlusCircle },
     { label: "Sipariş gir", href: "/siparis-gir", icon: PlusCircle },
     { label: "Fatura Kes", href: "/fatura-kes", icon: LucideFileSignature }
   ]
+
   const cardsInfo = [
     { title: "Günlük Satış", value: "₺5.230", bgColor: "bg-green-50" },
     { title: "Sipariş Sayısı", value: "45", bgColor: "" },
     { title: "Bekleyen Sipariş", value: "12", bgColor: "bg-blue-50" },
     { title: "Toplam Ürün", value: "120", bgColor: "bg-yellow-50" },
   ];
+  
+const productStock = products.filter(e => e.stock <= 5)
+
   return (
     <div className="p-6 space-y-6">
 
@@ -49,11 +58,10 @@ export default function DashboardPage() {
               </div>
               <div>
                 <ul className="list-disc pl-6 text-sm">
-                  <li>Ürün A - 2 adet</li>
-                  <li>Ürün B - 1 adet</li>
-                  <li>Ürün C - 4 adet</li>
-                  <li>Ürün D - 3 adet</li>
-                  <li>Ürün E - 1 adet</li>
+                  {productStock.map(pr => (
+                    <li>{pr.name} - {pr.stock} adet</li>
+
+                  ))}
                 </ul>
               </div>
             </CardContent>
