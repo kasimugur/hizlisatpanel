@@ -1,5 +1,6 @@
 // app/api/orders/route.ts
 import { dbConnect } from "@/lib/db";
+import { generateSequentialId } from "@/lib/generateSequentialId";
 import Order from "@/models/Order";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -33,7 +34,6 @@ export const POST = async (req: NextRequest) => {
       discount = "0",
     } = body;
 
-    // ✅ Temel alanlar kontrolü
     if (
       !customerName?.trim() ||
       !customerEmail?.trim() ||
@@ -43,12 +43,11 @@ export const POST = async (req: NextRequest) => {
       !totalPrice
     ) {
       return NextResponse.json(
-        { error: "Zorunlu alanlar eksik: isim, e-posta, adres, ürünler ve toplam tutar." },
+        { error: "Zorunlu alanlar eksik." },
         { status: 400 }
       );
     }
 
-    // ✅ Ürünlerdeki minimum veri kontrolü
     const invalidItem = items.find(item => !item.name || !item.quantity || !item.price);
     if (invalidItem) {
       return NextResponse.json(
@@ -57,7 +56,10 @@ export const POST = async (req: NextRequest) => {
       );
     }
 
+    const orderId = await generateSequentialId("ORD");
+console.log(orderId)
     const order = await Order.create({
+      orderId,
       customerName: customerName.trim(),
       customerEmail: customerEmail.trim().toLowerCase(),
       phone: phone.trim(),

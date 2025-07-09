@@ -3,6 +3,12 @@ import mongoose, { Schema, model, models } from "mongoose";
 
 const OrderSchema = new Schema(
   {
+    orderId: {
+      type: String,
+      required: true,
+      unique: true, // benzersiz olsun diye
+      trim: true,
+    },
     customerName: {
       type: String,
       required: true,

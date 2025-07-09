@@ -9,21 +9,21 @@ import { useProducts } from "@/context/ProductContext";
 export default function DashboardPage() {
 
   const { products } = useProducts()
-  
+
   const FastTransactions = [
     { label: "Ürün Ekle", href: "/urun-ekle", icon: PlusCircle },
     { label: "Sipariş gir", href: "/siparis-gir", icon: PlusCircle },
     { label: "Fatura Kes", href: "/fatura-kes", icon: LucideFileSignature }
   ]
 
+  const productValue = products.length
   const cardsInfo = [
     { title: "Günlük Satış", value: "₺5.230", bgColor: "bg-green-50" },
     { title: "Sipariş Sayısı", value: "45", bgColor: "" },
     { title: "Bekleyen Sipariş", value: "12", bgColor: "bg-blue-50" },
-    { title: "Toplam Ürün", value: "120", bgColor: "bg-yellow-50" },
+    { title: "Toplam Ürün", value: productValue, bgColor: "bg-yellow-50" },
   ];
-  
-const productStock = products.filter(e => e.stock <= 5)
+  const productStock = products.filter(e => e.stock <= 5)
 
   return (
     <div className="p-6 space-y-6">

@@ -1,74 +1,9 @@
 'use client'
+import { defaultSettings } from '@/lib/defaultSettings';
 import axios from 'axios';
 import React, { createContext, useContext, useEffect, useState } from 'react'
+import { SettingsType } from "@/types/settings";
 
-type SettingsType = {
-  _id: {
-    $oid: string;
-  };
-  __v: number;
-  backup: {
-    exportFormat: string;
-    importEnabled: boolean;
-  };
-  company: {
-    name: string;
-    taxOffice: string;
-    taxNumber: string;
-    mersisNumber: string;
-    kepAddress: string;
-    address: string;
-    email: string;
-    website: string;
-    city: string;
-    postalCode: string;
-    phone: string;
-    logo: string;
-  };
-  customization: {
-    visibleFields: {
-      invoiceNumber: boolean;
-    };
-    theme: string;
-    logo: string;
-  };
-  invoice: {
-    series: string;
-    startNumber: number;
-    vatRate: number;
-    invoiceType: string;
-    language: string;
-    currency: String,
-    timezone: String,
-    issueDelayDays: number;
-    note: string;
-  };
-  notifications: {
-    orderEmail: boolean;
-    shippingEmail: boolean;
-    shippingSMS: boolean;
-  };
-  payment: {
-    cashOnDelivery: boolean;
-    iban: string;
-    onlinePayment: string;
-  };
-  security: {
-    userRoles: string[];
-    sessionTimeout: number;
-    passwordChangeRequired: boolean;
-    twoFactorAuth: boolean;
-  };
-  shipping: {
-    carriers: string[];
-    pricing: string;
-    fixedPrice: number;
-    weightPrice: number;
-    noteTemplate: string;
-    deliveryEstimate: string;
-  };
-
-}
 
 type SettingsContextType = {
   settings: SettingsType | null
@@ -85,44 +20,58 @@ export const useSettings = () => useContext(SettingsContext)
 export const SettingsProvider = ({ children }: { children: React.ReactNode }) => {
   const [settings, setSettings] = useState<SettingsType | null>(null)
   const [loading, setLoading] = useState<boolean>(true)
-  useEffect(() => {
-    const fetchSettings = async () => {
-      try {
-        const response = await axios.get<SettingsType>("/api/settings")
-        setSettings(response.data)
-      } catch (error) {
-        console.error("Ayarlar alınamadı", error)
-      } finally {
-        setLoading(false)
+
+
+  const createInitialSettings = async () => {
+    try {
+      const res = await axios.post("/api/settings", defaultSettings)
+      setSettings(res.data)
+    } catch (err) {
+      console.error("Ayarlar oluşturulamadı", err)
+    }
+  }
+
+useEffect(() => {
+  const fetchOrCreateSettings = async () => {
+    try {
+      const res = await axios.get("/api/settings")
+      if (res.data) setSettings(res.data)
+      else await createInitialSettings()
+    } catch {
+      await createInitialSettings()
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  fetchOrCreateSettings()
+}, [])
+
+
+  const updateSettings = async (newSettings: Partial<SettingsType>) => {
+    console.log(newSettings, " context içindeki gönderile newSettings");
+
+    if (!newSettings) {
+      console.error("Hata: newSettings undefined veya null");
+      throw new Error("newSettings undefined veya null");
+    }
+
+    try {
+      const response = await axios.patch('/api/settings', newSettings, {
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      if (response.status === 200) {
+        setSettings(response.data);
+      } else {
+        throw new Error(`Beklenmeyen durum: ${response.status}`);
       }
+
+    } catch (err: any) {
+      console.error("Ayarlar güncellenemedi:", err.response?.data || err.message);
+      throw err; // Hata fırlat
     }
-    fetchSettings()
-  }, [])
-  
-const updateSettings = async (newSettings: Partial<SettingsType>) => {
-  console.log(newSettings, " context içindeki gönderile newSettings");
-  
-  if (!newSettings) {
-    console.error("Hata: newSettings undefined veya null");
-    throw new Error("newSettings undefined veya null");
-  }
-
-  try {
-    const response = await axios.patch('/api/settings', newSettings, {
-      headers: { 'Content-Type': 'application/json' },
-    });
-
-    if (response.status === 200) {
-      setSettings(response.data);
-    } else {
-      throw new Error(`Beklenmeyen durum: ${response.status}`);
-    }
-
-  } catch (err:any) {
-    console.error("Ayarlar güncellenemedi:", err.response?.data || err.message);
-    throw err; // Hata fırlat
-  }
-};
+  };
 
   return (
     <SettingsContext.Provider value={{ settings, updateSettings }}>

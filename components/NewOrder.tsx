@@ -21,7 +21,7 @@ import { useSettings } from "@/context/SettingsContext";
 export default function NewOrder() {
   const { products } = useProducts()
   const { refetch } = useOrders()
-  const { settings} = useSettings()
+  const { settings } = useSettings()
   const router = useRouter();
   const [customer, setCustomer] = useState({ name: "", email: "", phone: "", address: "", note: "" });
   const [product, setProduct] = useState([{ name: "", quantity: 1, price: 0 }]);
@@ -40,7 +40,7 @@ export default function NewOrder() {
     }
     setProduct(updated);
   };
-console.log(settings?.shipping.fixedPrice,"ayarlar ayarlamajk için")
+
   const addProduct = () => setProduct([...product, { name: "", quantity: 1, price: 0 }]);
 
   const removeProduct = (index) => {
@@ -60,7 +60,7 @@ console.log(settings?.shipping.fixedPrice,"ayarlar ayarlamajk için")
       discountVal = parseFloat(discount) || 0;
     }
 
-    const cargoFee = cargoIncluded ? Number(settings?.shipping.fixedPrice) : 0; 
+    const cargoFee = cargoIncluded ? Number(settings?.shipping.fixedPrice) : 0;
     // Negatif indirim kontrolü
     if (discountVal < 0) discountVal = 0;
 
@@ -92,7 +92,7 @@ console.log(settings?.shipping.fixedPrice,"ayarlar ayarlamajk için")
         router.push("/dashboard/orders");
         refetch();
         toast.success("Sipariş başarıyla eklendi!");
-
+        console.log(orderData, "1orderdata")
       }
     } catch (err) {
       console.error("Sipariş gönderilemedi:", err);

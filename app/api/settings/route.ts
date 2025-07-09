@@ -2,70 +2,75 @@ import { NextRequest, NextResponse } from 'next/server';
 import Settings from '@/models/Settings';
 import { dbConnect } from '@/lib/db';
 import merge from 'lodash.merge';
+import { defaultSettings } from '@/lib/defaultSettings'; // 👈 Bu önemli, birazdan vereceğim
+
+// ✅ AYARLARI GETİR – Yoksa oluştur
 export async function GET() {
   try {
     await dbConnect();
-    const settings = await Settings.findOne();
+    let settings = await Settings.findOne();
+
     if (!settings) {
-      const defaultSettings = await Settings.create({});
-      return NextResponse.json(defaultSettings);
+      settings = await Settings.create(defaultSettings);
     }
-    return NextResponse.json(settings);
+// console.log(defaultSettings)
+    const fullSettings = merge({}, defaultSettings, settings.toObject());
+    // console.log(fullSettings,"fullsettings get")
+    return NextResponse.json(fullSettings);
   } catch (error: any) {
     console.error('GET /api/settings error:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
 
+// ✅ TEK SEFERLİK OLUŞTUR
 export async function POST(req: NextRequest) {
-  try {
-    await dbConnect()
-    const body = await req.json()
-
-    // Zaten varsa, ikinci kez eklemeyi engelle
-    const exists = await Settings.findOne()
-    if (exists) {
-      return NextResponse.json({ error: "Ayarlar zaten mevcut." }, { status: 400 })
-    }
-
-    const created = await Settings.create(body)
-    return NextResponse.json(created, { status: 201 })
-  } catch (error: any) {
-    console.error("POST /api/settings error:", error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
-  }
-}
-
-export async function PATCH(req: NextRequest) {
+  console.log("👉 POST /api/settings tetiklendi");
   try {
     await dbConnect();
     const body = await req.json();
 
-    console.log('Gelen ayarlar:', body);
+    const exists = await Settings.findOne();
+    console.log(exists," exist")
+    if (exists) {
+      return NextResponse.json({ error: "Ayarlar zaten mevcut." }, { status: 400 });
+    }
+
+    const created = await Settings.create(merge({}, defaultSettings, body));
+    return NextResponse.json(created, { status: 201 });
+  } catch (error: any) {
+    console.error("POST /api/settings error:", error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+
+// ✅ GÜNCELLEME – Eksik alanları tamamla
+export async function PATCH(req: NextRequest) {
+  console.log("👉 PATCH /api/settings tetiklendi");
+  try {
+    await dbConnect();
+    const body = await req.json();
 
     const existingSettings = await Settings.findOne();
 
+    // Mevcut ayar yoksa yeni oluştur
     if (!existingSettings) {
-      const newSettings = await Settings.create(body);
-      return NextResponse.json(newSettings);
+      const created = await Settings.create(merge({}, defaultSettings, body));
+      return NextResponse.json(created);
     }
 
-    const merged = merge({}, existingSettings.toObject(), body);
+    // Varsayılanları da ekle
+    const merged = merge({}, defaultSettings, existingSettings.toObject(), body);
 
-    const settings = await Settings.findOneAndUpdate({}, merged, {
+    const updated = await Settings.findOneAndUpdate({}, merged, {
       new: true,
       runValidators: true,
       upsert: true,
     });
-    console.log('Gelen:', JSON.stringify(body, null, 2))
-    console.log('Güncellenen:', JSON.stringify(settings, null, 2))
 
-    console.log('Güncellenmiş ayarlar:', settings);
-
-    return NextResponse.json(settings);
+    return NextResponse.json(updated);
   } catch (error: any) {
     console.error('PATCH /api/settings error:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
-

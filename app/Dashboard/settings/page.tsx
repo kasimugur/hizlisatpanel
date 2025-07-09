@@ -10,71 +10,14 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 import axios from 'axios';
 import { useSettings } from '@/context/SettingsContext';
+import MarketplaceIntegrations from '@/components/Integrations/MarketplaceIntegrations';
+import { saveSettings } from '@/lib/settings';
+import { SettingsType } from '@/types/settings';
+import { defaultSettings } from '@/lib/defaultSettings';
 
 export default function SettingsPage() {
   const { updateSettings } = useSettings()
-  const [settings, setSettings] = useState({
-    company: {
-      name: '',
-      taxOffice: '',
-      taxNumber: '',
-      mersisNumber: '',
-      kepAddress: '',
-      address: '',
-      email: '',
-      website: '',
-      city: '',
-      postalCode: '',
-      phone: '',
-      logo: '',
-    },
-    invoice: {
-      series: 'INV-{YIL}-{SIRA}',
-      startNumber: 10001,
-      vatRate: 20,
-      invoiceType: 'e-Arşiv',
-      currency: 'TRY',
-      timezone: '',
-      language: 'TR',
-      issueDelayDays: 7,
-      note: 'Teşekkür ederiz!',
-    },
-    shipping: {
-      carriers: ['Yurtiçi'],
-      pricing: 'Sabit',
-      fixedPrice: 0,
-      weightPrice: 0,
-      noteTemplate: 'Kargoya teslim edilmiştir.',
-      deliveryEstimate: '2-4 iş günü',
-    },
-    payment: {
-      cashOnDelivery: true,
-      iban: '',
-      onlinePayment: 'Yok',
-    },
-    customization: {
-      theme: 'Açık',
-      logo: '',
-      visibleFields: {
-        invoiceNumber: true,
-      },
-    },
-    security: {
-      userRoles: ['Admin'],
-      sessionTimeout: 30,
-      passwordChangeRequired: false,
-      twoFactorAuth: false,
-    },
-    backup: {
-      exportFormat: 'JSON',
-      importEnabled: true,
-    },
-    notifications: {
-      orderEmail: false,
-      shippingEmail: false,
-      shippingSMS: false,
-    },
-  });
+  const [settings, setSettings] = useState<SettingsType>(defaultSettings);
 
   useEffect(() => {
     async function fetchSettings() {
@@ -89,39 +32,19 @@ export default function SettingsPage() {
     }
     fetchSettings();
   }, []);
-
-  const handleSave = async () => {
-  console.log(settings, " kaydet butonundaki settings");
-  
+const handleSave = async () => {
   try {
-    const res = await axios.patch('/api/settings', settings);
-    
-    if (res.status === 200) {
-      await updateSettings(settings);
-      toast.success('Ayarlar başarıyla kaydedildi!');
-    } else {
-      throw new Error(`Beklenmeyen durum: ${res.status}`);
-    }
-
-  } catch (error:any) {
-    console.error('Ayarlar kaydedilemedi:', error.response?.data || error.message);
-    toast.error('Ayarlar kaydedilemedi!');
+    // saveSettings artık güncel SettingsType döndürüyor
+    const fresh = await saveSettings(settings);
+    console.log("fresh save settingsden dönen .",fresh)
+    // hem context’e hem de lokal state’e bu yeni veriyi basabiliriz
+    updateSettings(fresh);
+    setSettings(fresh);
+  } catch {
+    // hatayı toast zaten gösterdi
   }
 };
 
-useEffect(() => {
-    async function fetchSettings() {
-      try {
-        const res = await axios.post('/api/settings');
-
-        setSettings(res.data);
-      } catch (error) {
-        console.error('Ayarlar yüklenemedi:', error);
-        toast.error('Ayarlar yüklenemedi!');
-      }
-    }
-    fetchSettings();
-  }, []);
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, field: 'company' | 'customization') => {
     const file = e.target.files?.[0];
     if (file) {
@@ -139,7 +62,7 @@ useEffect(() => {
   return (
     <div className="">
       <Tabs defaultValue="company" className="w-full bg-white rounded-sm">
-        <TabsList className="grid w-full grid-cols-8">
+        <TabsList className="grid w-full grid-cols-9">
           <TabsTrigger value="company">Firma Bilgileri</TabsTrigger>
           <TabsTrigger value="invoice">Fatura Ayarları</TabsTrigger>
           <TabsTrigger value="shipping">Kargo Ayarları</TabsTrigger>
@@ -147,9 +70,10 @@ useEffect(() => {
           <TabsTrigger value="customization">Panel Özelleştirme</TabsTrigger>
           <TabsTrigger value="security">Güvenlik</TabsTrigger>
           <TabsTrigger value="backup">Yedekleme</TabsTrigger>
+          <TabsTrigger value="entegrasyon">Entegrasyon </TabsTrigger>
           <TabsTrigger value="notifications">Bildirimler</TabsTrigger>
         </TabsList>
-
+      
         {/* Firma Bilgileri */}
         <TabsContent value="company">
           <Card>
@@ -786,6 +710,18 @@ useEffect(() => {
                 <Label htmlFor="import-enabled">İçe Aktarma Aktif</Label>
               </div>
               <Button onClick={handleSave}>Kaydet</Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+  {/* Entegrasyon Ayarları */}
+        <TabsContent value="entegrasyon">
+          <Card>
+            <CardHeader>
+              <CardTitle>Entegrasyon Ayarları</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4 grid md:grid-cols-2 gap-4">
+                <MarketplaceIntegrations />
             </CardContent>
           </Card>
         </TabsContent>

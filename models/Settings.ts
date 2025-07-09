@@ -65,6 +65,24 @@ const settingsSchema = new mongoose.Schema({
     shippingEmail: { type: Boolean, default: false },
     shippingSMS: { type: Boolean, default: false },
   },
+  integrations: {
+  trendyol: {
+    connected: { type: Boolean, default: false },
+    apiKey: { type: String },
+    apiSecret: { type: String },
+    supplierId: { type: String },
+  },
+  n11: {
+    connected: { type: Boolean, default: false },
+    apiKey: { type: String },
+    apiSecret: { type: String },
+  },
+  hepsiburada: {
+    connected: { type: Boolean, default: false },
+    apiKey: { type: String },
+    apiSecret: { type: String },
+  },
+},
 });
 
 export default mongoose.models.Settings || mongoose.model('Settings', settingsSchema);

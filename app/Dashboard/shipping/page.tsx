@@ -18,15 +18,43 @@ import { mockKargoFirmalari } from "@/constant/mockKargoFirmalari";
 // import { mockOrders } from "@/constant/mockOrders";
 import { mockShipments } from "@/constant/mockShipments";
 import { useOrders } from "@/context/OrdersContext";
+import { useSettings } from "@/context/SettingsContext";
+import { toast } from "sonner";
 
 
 export default function ShippingPage() {
-  const {orders} = useOrders()
+  const { orders } = useOrders()
+  const { settings } = useSettings()
+  const cargoFirm = settings?.shipping?.carriers || []
   const [selectedOrder, setSelectedOrder] = useState(null);
-  const [firm, setFirm] = useState(mockKargoFirmalari[0].name);
+  const [firm, setFirm] = useState(cargoFirm?.[0] || "");
   const [note, setNote] = useState("");
+  const [shipments, setShipments] = useState(mockShipments)
+  console.log(settings?.company.name)
 
+const generateTrackingCode = () => {
+  return `TRK-${Date.now().toString().slice(-8)}`;
+}
+console.log(selectedOrder,"selectorder")
+const handleCreateShipment = () => {
+  if (!selectedOrder) return;
 
+  const newShipment = {
+    orderId: selectedOrder._id,
+    trackingCode: generateTrackingCode(),
+    company: firm,
+    status: "Yolda",
+    labelPdf: "#", // Gerçek API'den gelirse buraya link gelecek
+  };
+
+  setShipments((prev) => [...prev, newShipment]);
+
+  toast.success(`📦 ${firm} firması ile kargo oluşturuldu`);
+  setSelectedOrder(null); // dialog'u kapatmak için
+  setNote(""); // notu temizle
+};
+
+console.log(shipments," shipments")
   const mockOrders = orders
   return (
     <div className="p-4 space-y-8 bg-white rounded-md">
@@ -69,14 +97,14 @@ export default function ShippingPage() {
                         <Select value={firm} onValueChange={setFirm}>
                           <SelectTrigger>Kargo Firması</SelectTrigger>
                           <SelectContent className="bg-white">
-                            {mockKargoFirmalari.map(f => (
-                              <SelectItem key={f.code} value={f.name}>
-                                {f.name}
+                            {cargoFirm.map((f, index) => (
+                              <SelectItem key={index} value={f}>
+                                {f}
                               </SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
-                        <Input disabled value="Gönderici: Firma Adı / Adres" />
+                        <Input disabled value={`Gönderici: ${settings?.company.name}`} />
                         <Input disabled value={`Alıcı: ${selectedOrder?.customerName}`} />
                         <Input
                           disabled
@@ -87,7 +115,7 @@ export default function ShippingPage() {
                           value={note}
                           onChange={(e) => setNote(e.target.value)}
                         />
-                        <Button onClick={() => alert("Mock barkod oluşturuldu!")}>
+                        <Button onClick={handleCreateShipment}>
                           Barkod Oluştur
                         </Button>
                       </div>
@@ -116,7 +144,7 @@ export default function ShippingPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {mockShipments.map((shipment) => (
+                {shipments.map((shipment) => (
                   <TableRow key={shipment.orderId}>
                     <TableCell>{shipment.orderId}</TableCell>
                     <TableCell className="flex items-center gap-2">

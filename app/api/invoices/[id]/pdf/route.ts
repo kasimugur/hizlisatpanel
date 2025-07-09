@@ -1,6 +1,7 @@
 import { dbConnect } from "@/lib/db"
 import { generateInvoiceHtml } from "@/lib/generateInvoiceHtml"
 import { generateInvoicePdf } from "@/lib/generateInvoicePdf"
+import { generateSequentialId } from "@/lib/generateSequentialId"
 import Invoice from "@/models/Invoice"
 import Settings from "@/models/Settings"
 import { NextRequest, NextResponse } from "next/server"
@@ -21,8 +22,9 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     return NextResponse.json({ error: "Ayarlar bulunamadı" }, { status: 500 })
   }
   console.log(settings.company.name)
+  const invoiceNo = await generateSequentialId("INV");
 const html = generateInvoiceHtml({
-  invoiceNo: invoice.no,
+  invoiceNo,
   date: invoice.date,
   items: invoice.items,
   discount: invoice.discount,
