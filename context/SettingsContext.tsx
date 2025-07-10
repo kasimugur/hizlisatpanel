@@ -4,15 +4,16 @@ import axios from 'axios';
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { SettingsType } from "@/types/settings";
 
-
 type SettingsContextType = {
   settings: SettingsType | null
   updateSettings: (newSettings: Partial<SettingsType>) => Promise<void>
+  loading: boolean
 }
 
 const SettingsContext = createContext<SettingsContextType>({
   settings: null,
   updateSettings: async () => { },
+  loading: true,
 })
 
 export const useSettings = () => useContext(SettingsContext)
@@ -20,33 +21,23 @@ export const useSettings = () => useContext(SettingsContext)
 export const SettingsProvider = ({ children }: { children: React.ReactNode }) => {
   const [settings, setSettings] = useState<SettingsType | null>(null)
   const [loading, setLoading] = useState<boolean>(true)
-
-
-  const createInitialSettings = async () => {
-    try {
-      const res = await axios.post("/api/settings", defaultSettings)
-      setSettings(res.data)
-    } catch (err) {
-      console.error("Ayarlar oluşturulamadı", err)
-    }
-  }
-
 useEffect(() => {
-  const fetchOrCreateSettings = async () => {
-    try {
-      const res = await axios.get("/api/settings")
-      if (res.data) setSettings(res.data)
-      else await createInitialSettings()
-    } catch {
-      await createInitialSettings()
-    } finally {
-      setLoading(false)
+    async function fetchSettings() {
+      try {
+        const res = await axios.get<SettingsType>("/api/settings");
+        setSettings(res.data);
+        setLoading(false)
+        console.log("YENİ AYAR GETİRİLDİ",res.data)
+      } catch {
+        // Eğer ayar yoksa oluştur
+        const res = await axios.patch<SettingsType>("/api/settings", defaultSettings);
+        setSettings(res.data);
+        setLoading(false)
+
+      }
     }
-  }
-
-  fetchOrCreateSettings()
-}, [])
-
+    fetchSettings();
+  }, []);
 
   const updateSettings = async (newSettings: Partial<SettingsType>) => {
     console.log(newSettings, " context içindeki gönderile newSettings");
@@ -74,7 +65,7 @@ useEffect(() => {
   };
 
   return (
-    <SettingsContext.Provider value={{ settings, updateSettings }}>
+    <SettingsContext.Provider value={{ settings, updateSettings, loading }}>
       {children}
     </SettingsContext.Provider>
   )

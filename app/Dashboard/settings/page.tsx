@@ -1,4 +1,4 @@
-'use client';
+'use client'
 import { useState, useEffect } from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,55 +9,53 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 import axios from 'axios';
-import { useSettings } from '@/context/SettingsContext';
 import MarketplaceIntegrations from '@/components/Integrations/MarketplaceIntegrations';
-import { saveSettings } from '@/lib/settings';
+import { useSettings } from '@/context/SettingsContext';
 import { SettingsType } from '@/types/settings';
 import { defaultSettings } from '@/lib/defaultSettings';
 
 export default function SettingsPage() {
-  const { updateSettings } = useSettings()
-  const [settings, setSettings] = useState<SettingsType>(defaultSettings);
+  const { updateSettings, settings ,loading} = useSettings()
+  const [localSettings, setLocalSettings] = useState<SettingsType>(defaultSettings);
 
   useEffect(() => {
-    async function fetchSettings() {
-      try {
-        const res = await axios.get('/api/settings');
-
-        setSettings(res.data);
-      } catch (error) {
-        console.error('Ayarlar yüklenemedi:', error);
-        toast.error('Ayarlar yüklenemedi!');
-      }
+    if (settings) {
+      setLocalSettings(settings);
     }
-    fetchSettings();
-  }, []);
-const handleSave = async () => {
-  try {
-    // saveSettings artık güncel SettingsType döndürüyor
-    const fresh = await saveSettings(settings);
-    console.log("fresh save settingsden dönen .",fresh)
-    // hem context’e hem de lokal state’e bu yeni veriyi basabiliriz
-    updateSettings(fresh);
-    setSettings(fresh);
-  } catch {
-    // hatayı toast zaten gösterdi
-  }
-};
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, field: 'company' | 'customization') => {
+  }, [settings]);
+console.log("YENİ AYAR  settingspage", settings)
+console.log("YENİ AYAR  localSettings", localSettings)
+  const handleSave = async () => {
+    if (!localSettings) {
+      toast.error('Ayarlar yüklenemedi veya boş!');
+      return;
+    }
+    try {
+      await updateSettings(localSettings);
+      toast.success('Ayarlar başarıyla kaydedildi!');
+    } catch (error) {
+      toast.error('Ayarlar kaydedilemedi!');
+      console.error(error);
+    }
+  };
+  
+ const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, field: 'company' | 'customization') => {
     const file = e.target.files?.[0];
-    if (file) {
+    if (file && localSettings) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setSettings({
-          ...settings,
-          [field]: { ...settings[field], logo: reader.result as string },
+        setLocalSettings({
+          ...localSettings,
+          [field]: { ...localSettings[field], logo: reader.result as string },
         });
       };
       reader.readAsDataURL(file);
     }
   };
+   if (loading) {
+    return <div className=" text-center"> yükleniyor...</div>;
+  }
 
   return (
     <div className="">
@@ -73,7 +71,7 @@ const handleSave = async () => {
           <TabsTrigger value="entegrasyon">Entegrasyon </TabsTrigger>
           <TabsTrigger value="notifications">Bildirimler</TabsTrigger>
         </TabsList>
-      
+
         {/* Firma Bilgileri */}
         <TabsContent value="company">
           <Card>
@@ -85,11 +83,11 @@ const handleSave = async () => {
                 <Label htmlFor="company-name">Firma Adı / İsim</Label>
                 <Input
                   id="company-name"
-                  value={settings.company.name}
+                  value={localSettings.company.name}
                   onChange={(e) =>
-                    setSettings({
-                      ...settings,
-                      company: { ...settings.company, name: e.target.value },
+                    setLocalSettings({
+                      ...localSettings,
+                      company: { ...localSettings?.company, name: e.target.value },
                     })
                   }
                 />
@@ -98,11 +96,11 @@ const handleSave = async () => {
                 <Label htmlFor="tax-office">Vergi Dairesi</Label>
                 <Input
                   id="tax-office"
-                  value={settings.company.taxOffice}
+                  value={localSettings.company.taxOffice}
                   onChange={(e) =>
-                    setSettings({
-                      ...settings,
-                      company: { ...settings.company, taxOffice: e.target.value },
+                    setLocalSettings({
+                      ...localSettings,
+                      company: { ...localSettings.company, taxOffice: e.target.value },
                     })
                   }
                 />
@@ -111,11 +109,11 @@ const handleSave = async () => {
                 <Label htmlFor="tax-number">Vergi No / TCKN</Label>
                 <Input
                   id="tax-number"
-                  value={settings.company.taxNumber}
+                  value={localSettings.company.taxNumber}
                   onChange={(e) =>
-                    setSettings({
-                      ...settings,
-                      company: { ...settings.company, taxNumber: e.target.value },
+                    setLocalSettings({
+                      ...localSettings,
+                      company: { ...localSettings.company, taxNumber: e.target.value },
                     })
                   }
                 />
@@ -124,11 +122,11 @@ const handleSave = async () => {
                 <Label htmlFor="mersis-number">Mersis No</Label>
                 <Input
                   id="mersis-number"
-                  value={settings.company.mersisNumber}
+                  value={localSettings.company.mersisNumber}
                   onChange={(e) =>
-                    setSettings({
-                      ...settings,
-                      company: { ...settings.company, mersisNumber: e.target.value },
+                    setLocalSettings({
+                      ...localSettings,
+                      company: { ...localSettings.company, mersisNumber: e.target.value },
                     })
                   }
                 />
@@ -137,11 +135,11 @@ const handleSave = async () => {
                 <Label htmlFor="kep-address">KEP Adresi</Label>
                 <Input
                   id="kep-address"
-                  value={settings.company.kepAddress}
+                  value={localSettings.company.kepAddress}
                   onChange={(e) =>
-                    setSettings({
-                      ...settings,
-                      company: { ...settings.company, kepAddress: e.target.value },
+                    setLocalSettings({
+                      ...localSettings,
+                      company: { ...localSettings.company, kepAddress: e.target.value },
                     })
                   }
                 />
@@ -150,11 +148,11 @@ const handleSave = async () => {
                 <Label htmlFor="address">Adres</Label>
                 <Input
                   id="address"
-                  value={settings.company.address}
+                  value={localSettings.company.address}
                   onChange={(e) =>
-                    setSettings({
-                      ...settings,
-                      company: { ...settings.company, address: e.target.value },
+                    setLocalSettings({
+                      ...localSettings,
+                      company: { ...localSettings.company, address: e.target.value },
                     })
                   }
                 />
@@ -164,11 +162,11 @@ const handleSave = async () => {
                 <Label htmlFor="email">E-posta</Label>
                 <Input
                   id="email"
-                  value={settings.company.email}
+                  value={localSettings.company.email}
                   onChange={(e) =>
-                    setSettings({
-                      ...settings,
-                      company: { ...settings.company, email: e.target.value },
+                    setLocalSettings({
+                      ...localSettings,
+                      company: { ...localSettings.company, email: e.target.value },
                     })
                   }
                 />
@@ -178,11 +176,11 @@ const handleSave = async () => {
                 <Label htmlFor="website">Web Sitesi</Label>
                 <Input
                   id="website"
-                  value={settings.company.website}
+                  value={localSettings.company.website}
                   onChange={(e) =>
-                    setSettings({
-                      ...settings,
-                      company: { ...settings.company, website: e.target.value },
+                    setLocalSettings({
+                      ...localSettings,
+                      company: { ...localSettings.company, website: e.target.value },
                     })
                   }
                 />
@@ -192,11 +190,11 @@ const handleSave = async () => {
                 <Label htmlFor="city">İl / İlçe</Label>
                 <Input
                   id="city"
-                  value={settings.company.city}
+                  value={localSettings.company.city}
                   onChange={(e) =>
-                    setSettings({
-                      ...settings,
-                      company: { ...settings.company, city: e.target.value },
+                    setLocalSettings({
+                      ...localSettings,
+                      company: { ...localSettings.company, city: e.target.value },
                     })
                   }
                 />
@@ -206,11 +204,11 @@ const handleSave = async () => {
                 <Label htmlFor="postalCode">Posta Kodu</Label>
                 <Input
                   id="postalCode"
-                  value={settings.company.postalCode}
+                  value={localSettings.company.postalCode}
                   onChange={(e) =>
-                    setSettings({
-                      ...settings,
-                      company: { ...settings.company, postalCode: e.target.value },
+                    setLocalSettings({
+                      ...localSettings,
+                      company: { ...localSettings.company, postalCode: e.target.value },
                     })
                   }
                 />
@@ -220,11 +218,11 @@ const handleSave = async () => {
                 <Label htmlFor="phone">Telefon</Label>
                 <Input
                   id="phone"
-                  value={settings.company.phone}
+                  value={localSettings.company.phone}
                   onChange={(e) =>
-                    setSettings({
-                      ...settings,
-                      company: { ...settings.company, phone: e.target.value },
+                    setLocalSettings({
+                      ...localSettings,
+                      company: { ...localSettings.company, phone: e.target.value },
                     })
                   }
                 />
@@ -238,8 +236,8 @@ const handleSave = async () => {
                     accept="image/*"
                     onChange={(e) => handleFileUpload(e, 'company')}
                   />
-                  {settings.company.logo && (
-                    <img src={settings.company.logo} alt="Firma Logosu" className="w-20 h-20 object-contain" />
+                  {localSettings.company.logo && (
+                    <img src={localSettings.company.logo} alt="Firma Logosu" className="w-20 h-20 object-contain" />
                   )}
                 </div>
               </div>
@@ -259,11 +257,11 @@ const handleSave = async () => {
                 <Label htmlFor="invoice-series">Seri Numarası Formatı</Label>
                 <Input
                   id="invoice-series"
-                  value={settings.invoice.series}
+                  value={localSettings.invoice.series}
                   onChange={(e) =>
-                    setSettings({
-                      ...settings,
-                      invoice: { ...settings.invoice, series: e.target.value },
+                    setLocalSettings({
+                      ...localSettings,
+                      invoice: { ...localSettings.invoice, series: e.target.value },
                     })
                   }
                 />
@@ -273,11 +271,11 @@ const handleSave = async () => {
                 <Input
                   id="start-number"
                   type="number"
-                  value={settings.invoice.startNumber}
+                  value={localSettings.invoice.startNumber}
                   onChange={(e) =>
-                    setSettings({
-                      ...settings,
-                      invoice: { ...settings.invoice, startNumber: Number(e.target.value) },
+                    setLocalSettings({
+                      ...localSettings,
+                      invoice: { ...localSettings.invoice, startNumber: Number(e.target.value) },
                     })
                   }
                 />
@@ -285,11 +283,11 @@ const handleSave = async () => {
               <div className="space-y-2">
                 <Label htmlFor="vat-rate">Varsayılan KDV Oranı</Label>
                 <Select
-                  value={settings.invoice.vatRate.toString()}
+                  value={localSettings.invoice.vatRate.toString()}
                   onValueChange={(value) =>
-                    setSettings({
-                      ...settings,
-                      invoice: { ...settings.invoice, vatRate: Number(value) },
+                    setLocalSettings({
+                      ...localSettings,
+                      invoice: { ...localSettings.invoice, vatRate: Number(value) },
                     })
                   }
                 >
@@ -307,11 +305,11 @@ const handleSave = async () => {
               <div className="space-y-2">
                 <Label htmlFor="invoice-type">Fatura Tipi</Label>
                 <Select
-                  value={settings.invoice.invoiceType}
+                  value={localSettings.invoice.invoiceType}
                   onValueChange={(value) =>
-                    setSettings({
-                      ...settings,
-                      invoice: { ...settings.invoice, invoiceType: value },
+                    setLocalSettings({
+                      ...localSettings,
+                      invoice: { ...localSettings.invoice, invoiceType: value },
                     })
                   }
                 >
@@ -328,11 +326,11 @@ const handleSave = async () => {
                 <Label htmlFor="currency">Para Birimi</Label>
                 <Input
                   id="currency"
-                  value={settings.invoice.currency}
+                  value={localSettings.invoice.currency}
                   onChange={(e) =>
-                    setSettings({
-                      ...settings,
-                      invoice: { ...settings.invoice, currency: e.target.value },
+                    setLocalSettings({
+                      ...localSettings,
+                      invoice: { ...localSettings.invoice, currency: e.target.value },
                     })
                   }
                 />
@@ -342,11 +340,11 @@ const handleSave = async () => {
                 <Label htmlFor="timezone">Zaman Dilimi (örn. Europe/Istanbul)</Label>
                 <Input
                   id="timezone"
-                  value={settings.invoice.timezone}
+                  value={localSettings.invoice.timezone}
                   onChange={(e) =>
-                    setSettings({
-                      ...settings,
-                      invoice: { ...settings.invoice, timezone: e.target.value },
+                    setLocalSettings({
+                      ...localSettings,
+                      invoice: { ...localSettings.invoice, timezone: e.target.value },
                     })
                   }
                 />
@@ -358,11 +356,11 @@ const handleSave = async () => {
                 <Input
                   id="issue-delay"
                   type="number"
-                  value={settings.invoice.issueDelayDays}
+                  value={localSettings.invoice.issueDelayDays}
                   onChange={(e) =>
-                    setSettings({
-                      ...settings,
-                      invoice: { ...settings.invoice, issueDelayDays: Number(e.target.value) },
+                    setLocalSettings({
+                      ...localSettings,
+                      invoice: { ...localSettings.invoice, issueDelayDays: Number(e.target.value) },
                     })
                   }
                 />
@@ -371,11 +369,11 @@ const handleSave = async () => {
                 <Label htmlFor="invoice-note">Fatura Notu</Label>
                 <Input
                   id="invoice-note"
-                  value={settings.invoice.note}
+                  value={localSettings.invoice.note}
                   onChange={(e) =>
-                    setSettings({
-                      ...settings,
-                      invoice: { ...settings.invoice, note: e.target.value },
+                    setLocalSettings({
+                      ...localSettings,
+                      invoice: { ...localSettings.invoice, note: e.target.value },
                     })
                   }
                 />
@@ -398,14 +396,14 @@ const handleSave = async () => {
                   <div key={carrier} className="flex items-center space-x-2">
                     <Checkbox
                       id={carrier}
-                      checked={settings.shipping.carriers.includes(carrier)}
+                      checked={localSettings?.shipping.carriers.includes(carrier)}
                       onCheckedChange={(checked) => {
                         const updatedCarriers = checked
-                          ? [...settings.shipping.carriers, carrier]
-                          : settings.shipping.carriers.filter((c) => c !== carrier);
-                        setSettings({
-                          ...settings,
-                          shipping: { ...settings.shipping, carriers: updatedCarriers },
+                          ? [...localSettings?.shipping?.carriers, carrier]
+                          : localSettings?.shipping.carriers.filter((c) => c !== carrier);
+                        setLocalSettings({
+                          ...localSettings,
+                          shipping: { ...localSettings?.shipping, carriers: updatedCarriers },
                         });
                       }}
                     />
@@ -416,11 +414,11 @@ const handleSave = async () => {
               <div className="space-y-2">
                 <Label htmlFor="pricing">Kargo Fiyatlandırma</Label>
                 <Select
-                  value={settings.shipping.pricing}
+                  value={localSettings?.shipping.pricing}
                   onValueChange={(value) =>
-                    setSettings({
-                      ...settings,
-                      shipping: { ...settings.shipping, pricing: value },
+                    setLocalSettings({
+                      ...localSettings,
+                      shipping: { ...localSettings?.shipping, pricing: value },
                     })
                   }
                 >
@@ -433,33 +431,33 @@ const handleSave = async () => {
                   </SelectContent>
                 </Select>
               </div>
-              {settings.shipping.pricing === 'Sabit' && (
+              {localSettings?.shipping.pricing === 'Sabit' && (
                 <div className="space-y-2">
                   <Label htmlFor="fixed-price">Sabit Kargo Fiyatı (₺)</Label>
                   <Input
                     id="fixed-price"
                     type="number"
-                    value={settings.shipping.fixedPrice}
+                    value={localSettings?.shipping.fixedPrice}
                     onChange={(e) =>
-                      setSettings({
-                        ...settings,
-                        shipping: { ...settings.shipping, fixedPrice: Number(e.target.value) },
+                      setLocalSettings({
+                        ...localSettings,
+                        shipping: { ...localSettings?.shipping, fixedPrice: Number(e.target.value) },
                       })
                     }
                   />
                 </div>
               )}
-              {settings.shipping.pricing === 'Ağırlığa Göre' && (
+              {localSettings?.shipping.pricing === 'Ağırlığa Göre' && (
                 <div className="space-y-2">
                   <Label htmlFor="weight-price">Kg Başına Fiyat (₺)</Label>
                   <Input
                     id="weight-price"
                     type="number"
-                    value={settings.shipping.weightPrice}
+                    value={localSettings?.shipping.weightPrice}
                     onChange={(e) =>
-                      setSettings({
-                        ...settings,
-                        shipping: { ...settings.shipping, weightPrice: Number(e.target.value) },
+                      setLocalSettings({
+                        ...localSettings,
+                        shipping: { ...localSettings?.shipping, weightPrice: Number(e.target.value) },
                       })
                     }
                   />
@@ -469,11 +467,11 @@ const handleSave = async () => {
                 <Label htmlFor="note-template">Kargo Açıklama Şablonu</Label>
                 <Input
                   id="note-template"
-                  value={settings.shipping.noteTemplate}
+                  value={localSettings?.shipping.noteTemplate}
                   onChange={(e) =>
-                    setSettings({
-                      ...settings,
-                      shipping: { ...settings.shipping, noteTemplate: e.target.value },
+                    setLocalSettings({
+                      ...localSettings,
+                      shipping: { ...localSettings?.shipping, noteTemplate: e.target.value },
                     })
                   }
                 />
@@ -482,11 +480,11 @@ const handleSave = async () => {
                 <Label htmlFor="delivery-estimate">Teslim Süresi Varsayımı</Label>
                 <Input
                   id="delivery-estimate"
-                  value={settings.shipping.deliveryEstimate}
+                  value={localSettings?.shipping.deliveryEstimate}
                   onChange={(e) =>
-                    setSettings({
-                      ...settings,
-                      shipping: { ...settings.shipping, deliveryEstimate: e.target.value },
+                    setLocalSettings({
+                      ...localSettings,
+                      shipping: { ...localSettings?.shipping, deliveryEstimate: e.target.value },
                     })
                   }
                 />
@@ -506,11 +504,11 @@ const handleSave = async () => {
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id="cash-on-delivery"
-                  checked={settings.payment.cashOnDelivery}
+                  checked={localSettings.payment.cashOnDelivery}
                   onCheckedChange={(checked) =>
-                    setSettings({
-                      ...settings,
-                      payment: { ...settings.payment, cashOnDelivery: !!checked },
+                    setLocalSettings({
+                      ...localSettings,
+                      payment: { ...localSettings.payment, cashOnDelivery: !!checked },
                     })
                   }
                 />
@@ -520,11 +518,11 @@ const handleSave = async () => {
                 <Label htmlFor="iban">IBAN Bilgisi</Label>
                 <Input
                   id="iban"
-                  value={settings.payment.iban}
+                  value={localSettings.payment.iban}
                   onChange={(e) =>
-                    setSettings({
-                      ...settings,
-                      payment: { ...settings.payment, iban: e.target.value },
+                    setLocalSettings({
+                      ...localSettings,
+                      payment: { ...localSettings.payment, iban: e.target.value },
                     })
                   }
                 />
@@ -545,11 +543,11 @@ const handleSave = async () => {
               <div className="space-y-2">
                 <Label htmlFor="theme">Tema Seçimi</Label>
                 <Select
-                  value={settings.customization.theme}
+                  value={localSettings.customization.theme}
                   onValueChange={(value) =>
-                    setSettings({
-                      ...settings,
-                      customization: { ...settings.customization, theme: value },
+                    setLocalSettings({
+                      ...localSettings,
+                      customization: { ...localSettings.customization, theme: value },
                     })
                   }
                 >
@@ -571,9 +569,9 @@ const handleSave = async () => {
                     accept="image/*"
                     onChange={(e) => handleFileUpload(e, 'customization')}
                   />
-                  {settings.customization.logo && (
+                  {localSettings.customization.logo && (
                     <img
-                      src={settings.customization.logo}
+                      src={localSettings.customization.logo}
                       alt="Panel Logosu"
                       className="w-20 h-20 object-contain"
                     />
@@ -585,13 +583,13 @@ const handleSave = async () => {
                 <div className="flex items-center space-x-2">
                   <Checkbox
                     id="invoice-number"
-                    checked={settings.customization.visibleFields.invoiceNumber}
+                    checked={localSettings.customization.visibleFields.invoiceNumber}
                     onCheckedChange={(checked) =>
-                      setSettings({
-                        ...settings,
+                      setLocalSettings({
+                        ...localSettings,
                         customization: {
-                          ...settings.customization,
-                          visibleFields: { ...settings.customization.visibleFields, invoiceNumber: !!checked },
+                          ...localSettings.customization,
+                          visibleFields: { ...localSettings.customization.visibleFields, invoiceNumber: !!checked },
                         },
                       })
                     }
@@ -617,11 +615,11 @@ const handleSave = async () => {
                 <Input
                   id="session-timeout"
                   type="number"
-                  value={settings.security.sessionTimeout}
+                  value={localSettings.security.sessionTimeout}
                   onChange={(e) =>
-                    setSettings({
-                      ...settings,
-                      security: { ...settings.security, sessionTimeout: Number(e.target.value) },
+                    setLocalSettings({
+                      ...localSettings,
+                      security: { ...localSettings.security, sessionTimeout: Number(e.target.value) },
                     })
                   }
                 />
@@ -629,11 +627,11 @@ const handleSave = async () => {
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id="password-change-required"
-                  checked={settings.security.passwordChangeRequired}
+                  checked={localSettings.security.passwordChangeRequired}
                   onCheckedChange={(checked) =>
-                    setSettings({
-                      ...settings,
-                      security: { ...settings.security, passwordChangeRequired: !!checked },
+                    setLocalSettings({
+                      ...localSettings,
+                      security: { ...localSettings.security, passwordChangeRequired: !!checked },
                     })
                   }
                 />
@@ -642,11 +640,11 @@ const handleSave = async () => {
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id="two-factor-auth"
-                  checked={settings.security.twoFactorAuth}
+                  checked={localSettings.security.twoFactorAuth}
                   onCheckedChange={(checked) =>
-                    setSettings({
-                      ...settings,
-                      security: { ...settings.security, twoFactorAuth: !!checked },
+                    setLocalSettings({
+                      ...localSettings,
+                      security: { ...localSettings.security, twoFactorAuth: !!checked },
                     })
                   }
                 />
@@ -679,11 +677,11 @@ const handleSave = async () => {
               <div className="space-y-2">
                 <Label htmlFor="export-format">Yedekleme Formatı</Label>
                 <Select
-                  value={settings.backup.exportFormat}
+                  value={localSettings.backup.exportFormat}
                   onValueChange={(value) =>
-                    setSettings({
-                      ...settings,
-                      backup: { ...settings.backup, exportFormat: value },
+                    setLocalSettings({
+                      ...localSettings,
+                      backup: { ...localSettings.backup, exportFormat: value },
                     })
                   }
                 >
@@ -699,11 +697,11 @@ const handleSave = async () => {
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id="import-enabled"
-                  checked={settings.backup.importEnabled}
+                  checked={localSettings.backup.importEnabled}
                   onCheckedChange={(checked) =>
-                    setSettings({
-                      ...settings,
-                      backup: { ...settings.backup, importEnabled: !!checked },
+                    setLocalSettings({
+                      ...localSettings,
+                      backup: { ...localSettings.backup, importEnabled: !!checked },
                     })
                   }
                 />
@@ -714,14 +712,14 @@ const handleSave = async () => {
           </Card>
         </TabsContent>
 
-  {/* Entegrasyon Ayarları */}
+        {/* Entegrasyon Ayarları */}
         <TabsContent value="entegrasyon">
           <Card>
             <CardHeader>
               <CardTitle>Entegrasyon Ayarları</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4 grid md:grid-cols-2 gap-4">
-                <MarketplaceIntegrations />
+              <MarketplaceIntegrations />
             </CardContent>
           </Card>
         </TabsContent>
@@ -736,11 +734,11 @@ const handleSave = async () => {
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id="order-email"
-                  checked={settings.notifications.orderEmail}
+                  checked={localSettings.notifications.orderEmail}
                   onCheckedChange={(checked) =>
-                    setSettings({
-                      ...settings,
-                      notifications: { ...settings.notifications, orderEmail: !!checked },
+                    setLocalSettings({
+                      ...localSettings,
+                      notifications: { ...localSettings.notifications, orderEmail: !!checked },
                     })
                   }
                 />
@@ -749,11 +747,11 @@ const handleSave = async () => {
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id="shipping-email"
-                  checked={settings.notifications.shippingEmail}
+                  checked={localSettings.notifications.shippingEmail}
                   onCheckedChange={(checked) =>
-                    setSettings({
-                      ...settings,
-                      notifications: { ...settings.notifications, shippingEmail: !!checked },
+                    setLocalSettings({
+                      ...localSettings,
+                      notifications: { ...localSettings.notifications, shippingEmail: !!checked },
                     })
                   }
                 />
@@ -762,11 +760,11 @@ const handleSave = async () => {
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id="shipping-sms"
-                  checked={settings.notifications.shippingSMS}
+                  checked={localSettings.notifications.shippingSMS}
                   onCheckedChange={(checked) =>
-                    setSettings({
-                      ...settings,
-                      notifications: { ...settings.notifications, shippingSMS: !!checked },
+                    setLocalSettings({
+                      ...localSettings,
+                      notifications: { ...localSettings.notifications, shippingSMS: !!checked },
                     })
                   }
                 />

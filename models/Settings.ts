@@ -68,19 +68,19 @@ const settingsSchema = new mongoose.Schema({
   integrations: {
   trendyol: {
     connected: { type: Boolean, default: false },
-    apiKey: { type: String },
-    apiSecret: { type: String },
-    supplierId: { type: String },
+    apiKey: { type: String ,default: ''},
+    apiSecret: { type: String ,default: ''},
+    supplierId: { type: String ,default: ''},
   },
   n11: {
     connected: { type: Boolean, default: false },
-    apiKey: { type: String },
-    apiSecret: { type: String },
+    apiKey: { type: String,default: '' },
+    apiSecret: { type: String ,default: ''},
   },
   hepsiburada: {
     connected: { type: Boolean, default: false },
-    apiKey: { type: String },
-    apiSecret: { type: String },
+    apiKey: { type: String,default: '' },
+    apiSecret: { type: String ,default: ''},
   },
 },
 });

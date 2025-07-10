@@ -1,20 +1,20 @@
 // lib/defaultSettings.ts
 import { SettingsType } from "@/types/settings";
 
-export const defaultSettings:SettingsType = {
+export const defaultSettings: SettingsType = {
   company: {
-    name: '',
-    taxOffice: '',
-    taxNumber: '',
-    mersisNumber: '',
-    kepAddress: '',
-    address: '',
-    email: '',
-    website: '',
-    city: '',
-    postalCode: '',
-    phone: '',
-    logo: '',
+    name: "Firma Adı",
+    taxOffice: "Kadıköy Vergi Dairesi",
+    taxNumber: "1234567890",
+    mersisNumber: "",
+    kepAddress: "",
+    address: "Adres örnek cadde 12",
+    email: "info@firma.com",
+    website: "",
+    city: "İstanbul",
+    postalCode: "34000",
+    phone: "02125551234",
+    logo: "",
   },
   invoice: {
     series: 'INV-{YIL}-{SIRA}',

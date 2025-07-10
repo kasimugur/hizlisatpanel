@@ -58,8 +58,8 @@ export default function DashboardPage() {
               </div>
               <div>
                 <ul className="list-disc pl-6 text-sm">
-                  {productStock.map(pr => (
-                    <li>{pr.name} - {pr.stock} adet</li>
+                  {productStock.map((pr,index) => (
+                    <li key={index}>{pr.name} - {pr.stock} adet</li>
 
                   ))}
                 </ul>
@@ -73,8 +73,8 @@ export default function DashboardPage() {
                   <Clock2 size={'15px'} style={{ color: 'red' }} /> Hızlı İşlemler
                 </span>
                 <div className=" gap-4 flex">
-                  {FastTransactions.map(({ label, icon: Icon }) => (
-                    <Button variant={"ghost"}
+                  {FastTransactions.map(({ label, icon: Icon },index) => (
+                    <Button key={index} variant={"ghost"}
                       className="bg-gray-900 hover:bg-gray-600 text-white">
                       <Icon className="h-5 w-5" />
                       {label}
