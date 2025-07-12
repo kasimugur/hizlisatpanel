@@ -27,7 +27,7 @@ export async function GET() {
 export async function PATCH(req: NextRequest) {
   try {
     await dbConnect();
-    const updates = await req.json();y
+    const updates = await req.json();
 
     const existingSettings = await Settings.findOne();
     if (!existingSettings) {

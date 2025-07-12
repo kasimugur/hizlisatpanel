@@ -10,12 +10,13 @@ import {
 } from "@/components/ui/chart"
 
 const chartData = [
-  { month: "January", desktop: 186, mobile: 80 },
-  { month: "February", desktop: 305, mobile: 200 },
-  { month: "March", desktop: 237, mobile: 120 },
-  { month: "April", desktop: 73, mobile: 190 },
-  { month: "May", desktop: 209, mobile: 130 },
-  { month: "June", desktop: 214, mobile: 140 },
+  { month: "pazartesi", desktop: 186, mobile: 80 },
+  { month: "salı", desktop: 305, mobile: 200 },
+  { month: "çarşamba", desktop: 237, mobile: 120 },
+  { month: "perşembe", desktop: 73, mobile: 190 },
+  { month: "cuma", desktop: 209, mobile: 130 },
+  { month: "cumartesi", desktop: 214, mobile: 140 },
+  { month: "pazar", desktop: 214, mobile: 140 },
 ]
 
 const chartConfig = {

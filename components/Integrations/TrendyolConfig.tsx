@@ -7,23 +7,33 @@ import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
 import { MoveLeft } from 'lucide-react'
+import { useSettings } from '@/context/SettingsContext'
 
 export default function TrendyolConfig({ onBack }: { onBack: () => void }) {
-  const [apiKey, setApiKey] = useState('')
-  const [apiSecret, setApiSecret] = useState('')
-  const [supplierId, setSupplierId] = useState('')
+const { settings, updateSettings } = useSettings()
+
+  const [apiKey, setApiKey] = useState(settings?.integrations.trendyol.apiKey || '')
+  const [apiSecret, setApiSecret] = useState(settings?.integrations.trendyol.apiSecret || '')
+  const [supplierId, setSupplierId] = useState(settings?.integrations.trendyol.supplierId || '')
+  const [connected, setConnected] = useState(settings?.integrations.trendyol.connected || false)
 
   const handleSave = async () => {
     try {
-      // API isteği buradan yapılabilir (mock olarak console)
-      console.log('Trendyol Config Saved:', {
-        apiKey,
-        apiSecret,
-        supplierId,
+      await updateSettings({
+        integrations: {
+          ...settings?.integrations,
+          trendyol: {
+            connected: true,
+            apiKey,
+            apiSecret,
+            supplierId,
+          }
+        }
       })
-      toast.success('Trendyol ayarları kaydedildi')
-    } catch (err) {
-      toast.error('Ayarlar kaydedilemedi')
+      toast.info('Trendyol ayarları kaydedildi')
+      onBack()
+    } catch (error) {
+      toast.error('Ayarlar kaydedilemedi',error)
     }
   }
 

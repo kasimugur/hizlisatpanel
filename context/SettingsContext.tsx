@@ -19,7 +19,7 @@ const SettingsContext = createContext<SettingsContextType>({
 export const useSettings = () => useContext(SettingsContext)
 
 export const SettingsProvider = ({ children }: { children: React.ReactNode }) => {
-  const [settings, setSettings] = useState<SettingsType | null>(null)
+  const [settings, setSettings] = useState<SettingsType>(defaultSettings)
   const [loading, setLoading] = useState<boolean>(true)
 useEffect(() => {
     async function fetchSettings() {

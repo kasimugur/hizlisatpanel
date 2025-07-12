@@ -4,6 +4,7 @@ import "./globals.css";
 import { ProductProvider } from "@/context/ProductContext";
 import { Toaster } from "sonner";
 import { InvoiceProvider } from "@/context/InvoiceContext";
+import { Navbar } from "@/components/NavBar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,6 +33,7 @@ export default function RootLayout({
       >
         <ProductProvider>
           <InvoiceProvider>
+            <Navbar />
             {children}
             <Toaster position="bottom-right" />
           </InvoiceProvider>

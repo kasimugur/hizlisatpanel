@@ -83,7 +83,7 @@ export type IntegrationSettings = {
   hepsiburada: {
     connected: boolean;
     apiKey: string;
-    apiSecret: string;
+    apiSecret: string;,
   };
 };
 
