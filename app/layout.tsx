@@ -5,6 +5,7 @@ import { ProductProvider } from "@/context/ProductContext";
 import { Toaster } from "sonner";
 import { InvoiceProvider } from "@/context/InvoiceContext";
 import { Navbar } from "@/components/NavBar";
+import { AuthProvider } from "@/context/AuthContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,13 +32,15 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-50`}
       >
-        <ProductProvider>
-          <InvoiceProvider>
-            <Navbar />
-            {children}
-            <Toaster position="bottom-right" />
-          </InvoiceProvider>
-        </ProductProvider>
+        <AuthProvider>
+          <ProductProvider>
+            <InvoiceProvider>
+              <Navbar />
+              {children}
+              <Toaster position="bottom-right" />
+            </InvoiceProvider>
+          </ProductProvider>
+        </AuthProvider>
 
       </body>
     </html>

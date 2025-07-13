@@ -53,13 +53,13 @@ export function Navbar() {
           {/* Masaüstü butonlar */}
           <div className="hidden md:flex items-center space-x-4">
             <Link
-              href="#login"
-              className="text-indigo-600 font-semibold hover:text-indigo-800 transition"
+              href="/login"
+              classNamelogin="text-indigo-600 font-semibold hover:text-indigo-800 transition"
             >
               Giriş Yap
             </Link>
             <Button asChild>
-              <Link href="#register">Kayıt Ol</Link>
+              <Link href="/register">Kayıt Ol</Link>
             </Button>
           </div>
 
@@ -84,7 +84,7 @@ export function Navbar() {
                     </Link>
                   ))}
                   <Link
-                    href="#login"
+                    href="/login"
                     className="block px-3 py-2 rounded text-indigo-600 hover:bg-indigo-50 font-semibold transition"
                     onClick={() => setOpen(false)}
                   >
@@ -95,7 +95,7 @@ export function Navbar() {
                     className="w-full mt-2"
                     onClick={() => setOpen(false)}
                   >
-                    <Link href="#register">Kayıt Ol</Link>
+                    <Link href="/register">Kayıt Ol</Link>
                   </Button>
                 </nav>
               </SheetContent>
