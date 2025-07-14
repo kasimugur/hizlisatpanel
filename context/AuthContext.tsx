@@ -59,17 +59,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       toast.error(err.response?.data?.error || "Kayıt başarısız!");
     }
   };
-
+  console.log(user,"logout gitiş")
   // Çıkış
   const logout = async () => {
     try {
       await axios.post("/api/logout", {}, { withCredentials: true });
+      console.log(user,"logout")
       setUser(null);
       toast.success("Çıkış yapıldı.");
+      console.log(user,"logout fonk")
       router.push("/login");
     } catch {
       toast.error("Çıkış sırasında hata oluştu.");
     }
+    
+    console.log(user,"logout çıkış")
   };
 console.log(user)
   return (
@@ -83,4 +87,44 @@ export const useAuth = () => {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error("useAuth must be used within AuthProvider");
   return ctx;
+};
+
+// HOC for protected (private) pages
+export const withAuth = (Component) => {
+  return (props) => {
+    const { user, loading } = useAuth();
+    const router = useRouter();
+
+    useEffect(() => {
+      if (!loading && !user) {
+        router.replace('/login');
+      }
+    }, [loading, user]);
+
+    if (loading || !user) {
+      return <p>Redirecting...</p>;
+    }
+
+    return <Component {...props} />;
+  };
+};
+
+// HOC for public (guest-only) pages like login/register
+export const withPublic = (Component) => {
+  return (props) => {
+    const { user, loading } = useAuth();
+    const router = useRouter();
+
+    useEffect(() => {
+      if (!loading && user) {
+        router.replace('/dashboard');
+      }
+    }, [loading, user]);
+
+    if (loading || user) {
+      return <p>Redirecting...</p>;
+    }
+
+    return <Component {...props} />;
+  };
 };

@@ -18,7 +18,9 @@ export default function Sidebar() {
 
   return (
     <aside className="w-64  min-h-screen bg-white border-r border-r-blue-50 shadow-sm p-4">
-      <div className="text-2xl   font-bold mb-8">HızlıSat</div>
+      <div className="text-2xl   font-bold mb-8">
+        <Link href="/" className="text-blue-500 hover:text-blue-700">Ana Sayfa  </Link>
+      </div>
       <nav className="space-y-2   ">
         {navItems.map(({ label, href, icon: Icon }) => (
           <Link

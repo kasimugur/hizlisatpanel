@@ -1,6 +1,6 @@
 // components/Hero.tsx
 "use client";
-
+import arayüz from "@/public/arayüz.png"
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -40,7 +40,7 @@ export function Hero() {
       {/* Görsel Bloğu */}
       <div className="max-w-lg w-full">
         <Image
-          src=""
+          src={arayüz}
           alt="HızlıSat uygulamasının modern ve kullanıcı dostu arayüzünü gösteren ekran görüntüsü"
           width={600}
           height={400}

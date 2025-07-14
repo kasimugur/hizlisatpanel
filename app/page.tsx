@@ -1,4 +1,4 @@
-
+'use client'
 import { About } from "@/components/home/About";
 import { Contact } from "@/components/home/Contact";
 import { Features } from "@/components/home/Features";
@@ -6,13 +6,19 @@ import { Footer } from "@/components/home/Footer";
 import { Hero } from "@/components/home/Hero";
 import { HowItWorks } from "@/components/home/HowItWorks";
 import { Section } from "@/components/home/Section";
+import { Navbar } from "@/components/NavBar";
 import Product from "@/components/Product";
 import Sidebar from "@/components/Sidebar";
 import TopBar from "@/components/TopBar";
+import { useAuth } from "@/context/AuthContext";
 
 export default function Home() {
+  const {user} = useAuth()
   return (
-    <> <main>
+    <>
+  {/* {user !== null ? "" :<Navbar />}    */}
+  
+    <main>
       <Hero />
 
       <Features />

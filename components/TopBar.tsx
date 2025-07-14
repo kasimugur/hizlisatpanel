@@ -1,5 +1,6 @@
 import { Bell, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { UserMenu } from "./user/UserMenu";
 
 export default function TopBar() {
   return (
@@ -9,9 +10,7 @@ export default function TopBar() {
         <Button variant="ghost" size="icon">
           <Bell className="h-5 w-5" />
         </Button>
-        <Button variant="ghost" size="icon">
-          <User className="h-5 w-5" />
-        </Button>
+        <UserMenu />
       </div>
     </div>
   );

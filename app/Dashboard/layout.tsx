@@ -1,7 +1,8 @@
 // app/dashboard/layout.tsx
-
+"use client"
 import Sidebar from '@/components/Sidebar'
 import TopBar from '@/components/TopBar'
+import { useAuth } from '@/context/AuthContext'
 import { IntegrationsProvider } from '@/context/IntegrationsContext'
 import { OrdersProvider } from '@/context/OrdersContext'
 import { SettingsProvider } from '@/context/SettingsContext'
@@ -11,6 +12,7 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode
 }) {
+    const {user} = useAuth()
   return (
     <IntegrationsProvider>
       <OrdersProvider>

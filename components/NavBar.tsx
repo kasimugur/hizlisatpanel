@@ -6,11 +6,13 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Menu } from "lucide-react";
+import { Bell, Menu } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import { UserMenu } from "./user/UserMenu";
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
-
+  const { user } = useAuth()
   const links = [
     { href: "#landing", label: "Ana Sayfa" },
     { href: "#features", label: "Özellikler" },
@@ -48,20 +50,40 @@ export function Navbar() {
                 {link.label}
               </Link>
             ))}
+            <Link
+              
+                href={'/dashboard'}
+                className={`${user === null && 'hidden'}  hover:text-indigo-600 transition`}
+              >
+                Panel
+              </Link>
           </nav>
 
           {/* Masaüstü butonlar */}
-          <div className="hidden md:flex items-center space-x-4">
-            <Link
-              href="/login"
-              classNamelogin="text-indigo-600 font-semibold hover:text-indigo-800 transition"
-            >
-              Giriş Yap
-            </Link>
-            <Button asChild>
-              <Link href="/register">Kayıt Ol</Link>
-            </Button>
-          </div>
+          {user !== null ? (
+            <div className="hidden md:flex items-center gap-4">
+              {/* Bildirim butonu */}
+              <Button variant="ghost" size="icon">
+                <Bell className="h-5 w-5" />
+              </Button>
+
+              {/* Kullanıcı menüsü */}
+              <UserMenu />
+            </div>
+          ) : (
+            <div className="hidden md:flex items-center space-x-4">
+              <Link
+                href="/login"
+                className="text-indigo-600 font-semibold hover:text-indigo-800 transition"
+              >
+                Giriş Yap
+              </Link>
+              <Button asChild>
+                <Link href="/register">Kayıt Ol</Link>
+              </Button>
+            </div>
+          )}
+
 
           {/* Mobil menü */}
           <div className="md:hidden">
@@ -71,9 +93,9 @@ export function Navbar() {
                   <Menu size={24} />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-64">
+              <SheetContent side="right" className="w-64 bg-white">
                 <nav className="mt-4 space-y-1 font-semibold text-gray-700">
-                  {links.map((link) => (
+                  {/* {links.map((link) => (
                     <Link
                       key={link.href}
                       href={link.href}
@@ -96,7 +118,74 @@ export function Navbar() {
                     onClick={() => setOpen(false)}
                   >
                     <Link href="/register">Kayıt Ol</Link>
-                  </Button>
+                  </Button> */}
+                  {links.map((link) => (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      className="block px-3 py-2 rounded hover:bg-indigo-50 hover:text-indigo-600 transition"
+                      onClick={() => setOpen(false)}
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
+                  {user ? (
+                    <>
+                      <Link
+                        href="/dashboard"
+                        className="block px-3 py-2 rounded hover:bg-indigo-50 hover:text-indigo-600 transition"
+                        onClick={() => setOpen(false)}
+                      >
+                        Dashboard
+                      </Link>
+                        <Button 
+                          // onClick={() => setOpen(false)}
+                        className="block px-3 py-2 rounded hover:bg-indigo-50 hover:text-indigo-600 transition"
+                        >
+                        <UserMenu />
+                        </Button>
+                      
+                      
+                      <Button
+                        variant="outline"
+                        className="w-full mt-2 text-red-600 border-red-200"
+                        onClick={() => {
+                          // logout fonksiyonu çağırılmalı
+                          setOpen(false);
+                        }}
+                      >
+                        Çıkış Yap
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      {links.map((link) => (
+                        <Link
+                          key={link.href}
+                          href={link.href}
+                          className="block px-3 py-2 rounded hover:bg-indigo-50 hover:text-indigo-600 transition"
+                          onClick={() => setOpen(false)}
+                        >
+                          {link.label}
+                        </Link>
+                      ))}
+                      <Link
+                        href="/login"
+                        className="block px-3 py-2 rounded text-indigo-600 hover:bg-indigo-50 font-semibold transition"
+                        onClick={() => setOpen(false)}
+                      >
+                        Giriş Yap
+                      </Link>
+                      <Button
+                        asChild
+                        className="w-full mt-2"
+                        onClick={() => setOpen(false)}
+                      >
+                        <Link href="/register">Kayıt Ol</Link>
+                      </Button>
+                    </>
+                  )}
+                  
                 </nav>
               </SheetContent>
             </Sheet>
