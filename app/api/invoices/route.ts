@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Invoice from "@/models/Invoice";
 import { dbConnect } from "@/lib/db";
+import { getUserIdFromRequest } from "@/lib/getUserIdFromRequest";
 
 function generateInvoiceNo() {
   const random = Math.floor(100000 + Math.random() * 900000); // 6 haneli
@@ -10,7 +11,10 @@ function generateInvoiceNo() {
 export async function GET(req: NextRequest) {
   try {
     await dbConnect();
-    const invoices = await Invoice.find().sort({ date: -1 }); // Yeni tarih en üstte
+    const userId = getUserIdFromRequest(req);
+console.log(userId,"user ıd gett")
+    if (!userId) return Response.json({ error: "Unauthorized" }, { status: 401 });
+    const invoices = await Invoice.find({ user: userId }).sort({ date: -1 }); // Yeni tarih en üstte
     return NextResponse.json(invoices);
   } catch (err: any) {
     console.error("GET /invoices error:", err);
@@ -21,6 +25,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     await dbConnect();
+    const userId = getUserIdFromRequest(req);
     const body = await req.json();
 
     const {
@@ -69,8 +74,9 @@ export async function POST(req: NextRequest) {
         { status: 500 }
       );
     }
-
+    if (!userId) return Response.json({ error: "Unauthorized" }, { status: 401 });
     const newInvoice = await Invoice.create({
+      user: userId,
       no,
       customer,
       phone: phone || "",

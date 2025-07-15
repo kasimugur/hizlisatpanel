@@ -2,6 +2,8 @@ import mongoose, { Schema, model, models } from "mongoose";
 
 const InvoiceSchema = new Schema(
   {
+    user: { type: Schema.Types.ObjectId, ref: "User", required: true }, // Eklenecek!
+    orderId: { type: Schema.Types.ObjectId, ref: "Order" }, // Opsiyonel, sipariş ile bağlantı
     no: {
       type: String,
       required: true,

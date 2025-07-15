@@ -1,7 +1,7 @@
-import mongoose from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
 
 const settingsSchema = new mongoose.Schema({
-    user: { type: Schema.Types.ObjectId, ref: 'User', required: true }, // YENİ!
+  user: { type: Schema.Types.ObjectId, ref: 'User', required: true }, // YENİ!
   company: {
     name: { type: String, required: true },
     taxOffice: { type: String },
@@ -67,23 +67,23 @@ const settingsSchema = new mongoose.Schema({
     shippingSMS: { type: Boolean, default: false },
   },
   integrations: {
-  trendyol: {
-    connected: { type: Boolean, default: false },
-    apiKey: { type: String ,default: ''},
-    apiSecret: { type: String ,default: ''},
-    supplierId: { type: String ,default: ''},
+    trendyol: {
+      connected: { type: Boolean, default: false },
+      apiKey: { type: String, default: '' },
+      apiSecret: { type: String, default: '' },
+      supplierId: { type: String, default: '' },
+    },
+    n11: {
+      connected: { type: Boolean, default: false },
+      apiKey: { type: String, default: '' },
+      apiSecret: { type: String, default: '' },
+    },
+    hepsiburada: {
+      connected: { type: Boolean, default: false },
+      apiKey: { type: String, default: '' },
+      apiSecret: { type: String, default: '' },
+    },
   },
-  n11: {
-    connected: { type: Boolean, default: false },
-    apiKey: { type: String,default: '' },
-    apiSecret: { type: String ,default: ''},
-  },
-  hepsiburada: {
-    connected: { type: Boolean, default: false },
-    apiKey: { type: String,default: '' },
-    apiSecret: { type: String ,default: ''},
-  },
-},
-});
+}, { strict: true });
 
 export default mongoose.models.Settings || mongoose.model('Settings', settingsSchema);

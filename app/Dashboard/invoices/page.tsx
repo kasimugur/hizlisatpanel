@@ -26,7 +26,6 @@ export default function InvoiceSelect() {
       toast.error("Fatura silinirken hata oluştu");
     }
   }
-console.log(invoices,"bakılaca fatura bilgileri")
   if (loading) return <p>Yükleniyor...</p>
   return (
     <div className="p-6 space-y-6 bg-white rounded-md">

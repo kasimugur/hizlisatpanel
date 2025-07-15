@@ -3,6 +3,7 @@ import mongoose, { Schema, model, models } from 'mongoose'
 
 const ProductSchema = new Schema(
   {
+    user: { type: Schema.Types.ObjectId, ref: "User", required: true },
     name: {
       type: String,
       required: [true, 'Ürün adı zorunludur'],
@@ -50,7 +51,9 @@ const ProductSchema = new Schema(
       },
     ],
   },
+
   { timestamps: true }
+
 )
 
 const Product = models.Product || model('Product', ProductSchema)

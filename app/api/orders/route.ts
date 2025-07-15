@@ -1,13 +1,20 @@
 // app/api/orders/route.ts
+import { verifyToken } from "@/lib/auth";
 import { dbConnect } from "@/lib/db";
 import { generateSequentialId } from "@/lib/generateSequentialId";
+import { getAuthInfo } from "@/lib/getAuthInfo";
+import { getUserIdFromRequest } from "@/lib/getUserIdFromRequest";
 import Order from "@/models/Order";
 import { NextRequest, NextResponse } from "next/server";
 
-export const GET = async () => {
+export const GET = async (req: NextRequest) => {
   try {
     await dbConnect();
-    const orders = await Order.find().sort({ createdAt: -1 });
+    const userId = getUserIdFromRequest(req);
+    if (!userId) return Response.json({ error: "Unauthorized" }, { status: 401 });
+    const orders = await Order.find({
+      user: userId,
+    }).sort({ createdAt: -1 });
     return NextResponse.json(orders, { status: 200 });
   } catch (error) {
     console.error("GET /api/orders error:", error);
@@ -19,7 +26,7 @@ export const POST = async (req: NextRequest) => {
   try {
     await dbConnect();
     const body = await req.json();
-
+    const userId = getUserIdFromRequest(req);
     const {
       customerName,
       customerEmail,
@@ -57,7 +64,7 @@ export const POST = async (req: NextRequest) => {
     }
 
     const orderId = await generateSequentialId("ORD");
-console.log(orderId)
+    if (!userId) return Response.json({ error: "Unauthorized" }, { status: 401 });
     const order = await Order.create({
       orderId,
       customerName: customerName.trim(),
@@ -71,6 +78,8 @@ console.log(orderId)
       cargoIncluded,
       paymentStatus,
       discount: discount.toString().trim(),
+      user: userId,        // UserID eklendi!
+
     });
 
     return NextResponse.json(order, { status: 201 });
