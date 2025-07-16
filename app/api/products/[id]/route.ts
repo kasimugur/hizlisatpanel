@@ -1,14 +1,16 @@
 // /app/api/products/[id]/route.ts
 
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { dbConnect } from "@/lib/db";
 import Product from "@/models/Product";
 import mongoose from "mongoose";
+import { getUserIdFromRequest } from "@/lib/getUserIdFromRequest";
 
-export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   await dbConnect();
   const id = params.id;
-
+  const userId = getUserIdFromRequest(req);
+  if (!userId) return Response.json({ error: "Unauthorized" }, { status: 401 });
   if (!mongoose.isValidObjectId(id)) {
     return NextResponse.json({ message: "Geçersiz ürün ID." }, { status: 400 });
   }
@@ -61,7 +63,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
   }
 
   try {
-    const updated = await Product.findByIdAndUpdate(id, body, { new: true });
+    const updated = await Product.findByIdAndUpdate({ _id: params.id, user: userId }, body, { new: true });
 
     if (!updated) {
       return NextResponse.json({ message: "Ürün bulunamadı." }, { status: 404 });
@@ -76,12 +78,13 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
 
 
 // ÜRÜN SİLME
-export async function DELETE(_: Request, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
   await dbConnect();
-  const id = params.id;
-
+  // const id = params.id;
+const userId = getUserIdFromRequest(req);
+  if (!userId) return Response.json({ error: "Unauthorized" }, { status: 401 });
   try {
-    const deleted = await Product.findByIdAndDelete(id);
+    const deleted = await Product.findByIdAndDelete({ _id: params.id, user: userId });
     if (!deleted) {
       return NextResponse.json({ message: "Ürün bulunamadı." }, { status: 404 });
     }

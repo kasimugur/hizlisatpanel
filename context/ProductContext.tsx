@@ -9,6 +9,7 @@ import React, {
   ReactNode,
 } from "react"
 import axios from "axios"
+import { useAuth } from "./AuthContext"
 
 // 1. Ürün tipi
 export interface Product {
@@ -36,6 +37,7 @@ interface ProductProviderProps {
 }
 
 export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) => {
+  const {user} = useAuth()
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState<boolean>(true)
 
@@ -52,7 +54,7 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
 
   useEffect(() => {
     fetchProducts()
-  }, [])
+  }, [user?.id])
 
   return (
     <ProductContext.Provider value={{ products, setProducts, loading, fetchProducts }}>

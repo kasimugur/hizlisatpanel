@@ -1,6 +1,7 @@
 'use client'
 import { createContext, useContext, useEffect, useState } from 'react'
 import axios from 'axios'
+import { useAuth } from './AuthContext'
 
 export type Order = {
   _id?: string
@@ -28,6 +29,7 @@ type OrdersContextType = {
 const OrdersContext = createContext<OrdersContextType | undefined>(undefined)
 
 export const OrdersProvider = ({ children }: { children: React.ReactNode }) => {
+  const {user} = useAuth()
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -44,10 +46,9 @@ export const OrdersProvider = ({ children }: { children: React.ReactNode }) => {
       setLoading(false)
     }
   }
-console.log("siparişler ",orders)
   useEffect(() => {
     fetchOrders()
-  }, [])
+  }, [user?.id])
 
   return (
     <OrdersContext.Provider value={{ orders, loading, error, refetch: fetchOrders }}>

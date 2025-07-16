@@ -20,6 +20,7 @@ import ImageInput from "./ImageInput";
 import axios from "axios";
 import { useProducts } from "@/context/ProductContext";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   name: z.string().min(1, "Ürün adı zorunlu"),
@@ -31,6 +32,7 @@ const formSchema = z.object({
 
 export default function NewProduct() {
   const { fetchProducts } = useProducts()
+  const router = useRouter()
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -79,6 +81,7 @@ export default function NewProduct() {
       toast.success('Ürün başarılı bir şekilde eklendi.')
       form.reset()
       setVaryant([{ tip: '', deger: '' }])
+      router.push('/dashboard/products')
     } catch (error) {
       console.error('Ürün eklenemedi:', error)
     }

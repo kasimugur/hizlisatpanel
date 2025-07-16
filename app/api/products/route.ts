@@ -1,12 +1,15 @@
 // app/api/products/route.ts
 import { dbConnect } from '@/lib/db'
+import { getUserIdFromRequest } from '@/lib/getUserIdFromRequest'
 import Product from '@/models/Product'
 import { NextRequest, NextResponse } from 'next/server'
 
-export const GET = async () => {
+export const GET = async (req: NextRequest) => {
   try {
     await dbConnect()
-    const products = await Product.find()
+    const userId = getUserIdFromRequest(req);
+    if (!userId) return Response.json({ error: "Unauthorized" }, { status: 401 });
+    const products = await Product.find({ user: userId })
     return NextResponse.json(products)
   } catch (error) {
     console.error('GET /api/products error:', error)
@@ -18,7 +21,8 @@ export const POST = async (req: NextRequest) => {
   try {
     await dbConnect();
     const body = await req.json();
-
+    const userId = getUserIdFromRequest(req);
+    if (!userId) return Response.json({ error: "Unauthorized" }, { status: 401 });
     const errors = [];
 
     const {
@@ -79,6 +83,7 @@ export const POST = async (req: NextRequest) => {
       image,
       variants: variants || [],
       description: description || "",
+      user: userId,
     });
 
     return NextResponse.json(newProduct, { status: 201 });
