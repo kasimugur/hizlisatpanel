@@ -15,7 +15,7 @@ export const mockTrendyolProducts = [
     vatRate: 10,
     cargoCompanyId: 10,
     images: [
-      { url: "https://mediaqa.store.alshaya.com/urun1.jpg" }
+      { url: "https://picsum.photos/id/51/400/300.jpg" }
     ],
     attributes: [
       { attributeId: 293, attributeValueId: 2170846, customAttributeValue: null },
@@ -24,13 +24,13 @@ export const mockTrendyolProducts = [
     shipmentAddressId: null,
     returningAddressId: null
   },
-  {
+  { 
     barcode: "INTEGRATIONTESTPRODUCT2",
     title: "Integration Test Product 2 (Updated)",
     productMainId: "INTEGRATIONTESTPRODUCT2",
     brandId: 187803,
     categoryId: 91266,
-    quantity: 150,
+    quantity: 5,
     stockCode: "STK-stokum-101",
     dimensionalWeight: 2,
     description: "İkinci test ürünü (güncellenmiş)",
@@ -40,7 +40,7 @@ export const mockTrendyolProducts = [
     vatRate: 10,
     cargoCompanyId: 11,
     images: [
-      { url: "https://cdn.trendyol.com/urun2.jpg" }
+      { url: "https://picsum.photos/id/40/400/300.jpg" }
     ],
     attributes: [
       { attributeId: 293, attributeValueId: 2170846, customAttributeValue: null },
@@ -65,7 +65,7 @@ export const mockTrendyolProducts = [
     vatRate: 8,
     cargoCompanyId: 20,
     images: [
-      { url: "https://cdn.trendyol.com/urun3.jpg" }
+      { url: "https://picsum.photos/id/30/400/300.jpg" }
     ],
     attributes: [
       { attributeId: 500, attributeValueId: 3333, customAttributeValue: null }
@@ -89,7 +89,7 @@ export const mockTrendyolProducts = [
     vatRate: 8,
     cargoCompanyId: 30,
     images: [
-      { url: "https://cdn.trendyol.com/urun4.jpg" }
+      { url: "https://picsum.photos/id/20/400/300.jpg" }
     ],
     attributes: [
       { attributeId: 400, attributeValueId: 1111, customAttributeValue: null }

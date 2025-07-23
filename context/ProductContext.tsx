@@ -10,15 +10,9 @@ import React, {
 } from "react"
 import axios from "axios"
 import { useAuth } from "./AuthContext"
+import { Product } from "@/types/product"
+import { mapDbToProduct, mapTrendyolToProduct } from "@/lib/mappers"
 
-// 1. Ürün tipi
-export interface Product {
-  _id: string
-  name: string
-  img: string
-  price: number
-  stock: number
-}
 
 // 2. Context tipi
 interface ProductContextType {
@@ -43,8 +37,15 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get<Product[]>("/api/products")
-      setProducts(response.data)
+      const dbRes = await axios.get<DbProduct[]>('/api/products')
+      const dbProducts = dbRes.data.map(mapDbToProduct)
+
+      // Mock Trendyol ürünlerini çek ve map et
+      const trRes = await axios.get<MockTrendyolProduct[]>('/api/mock/trendyol/products')
+      const trProducts = trRes.data.map(mapTrendyolToProduct)
+
+      // İkisini birleştir ve state'e ata
+      setProducts([...dbProducts, ...trProducts])
     } catch (error) {
       console.error("Ürünler alınamadı:", error)
     } finally {
@@ -55,7 +56,7 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
   useEffect(() => {
     fetchProducts()
   }, [user?.id])
-
+console.log("product context",products.map(i=> i))
   return (
     <ProductContext.Provider value={{ products, setProducts, loading, fetchProducts }}>
       {children}

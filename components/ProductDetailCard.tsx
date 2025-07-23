@@ -9,13 +9,14 @@ import { toast } from "sonner";
 import axios from "axios";
 import { useProducts } from "@/context/ProductContext";
 import { Label } from "./ui/label";
+import { Product } from "@/types/product";
 
 export default function ProductDetailCard({
   product,
   mode,
   closeSheet
 }: {
-  product: any,
+  product: Product,
   mode: "view" | "edit",
   closeSheet: () => void
 }) {
@@ -55,25 +56,54 @@ export default function ProductDetailCard({
     setFormData(prev => ({ ...prev, variants: newVariants }));
   };
 
-  const handleClick = async () => {
-    try {
-      const payload = {
-        ...formData,
-        variants: formData.variants.map(v => ({
-          name: v.name,
-          options: v.options.split(",").map(o => o.trim()).filter(Boolean)
-        }))
-      };
+  // const handleClick = async () => {
+  //   try {
+  //     const payload = {
+  //       ...formData,
+  //       variants: formData.variants.map(v => ({
+  //         name: v.name,
+  //         options: v.options.split(",").map(o => o.trim()).filter(Boolean)
+  //       }))
+  //     };
 
-      await axios.patch(`/api/products/${product._id}`, payload);
-      await fetchProducts();
-      toast.success("✅ Ürün başarıyla güncellendi");
-      closeSheet();
-    } catch (error: any) {
-      console.error("Ürün güncellenemedi", error);
-      toast.error("❌ Güncelleme sırasında bir hata oluştu");
-    }
-  };
+  //     await axios.patch(`/api/products/${product._id}`, payload);
+  //     await fetchProducts();
+  //     toast.success("✅ Ürün başarıyla güncellendi");
+  //     closeSheet();
+  //   } catch (error: any) {
+  //     console.error("Ürün güncellenemedi", error);
+  //     toast.error("❌ Güncelleme sırasında bir hata oluştu");
+  //   }
+  // };
+
+const handleClick = async () => {
+  try {
+    // 1) Formdan gelen veriyi Trendyol formatındaki variants'a dönüştür
+    const payload = {
+      ...formData,
+      variants: formData.variants.map(v => ({
+        name: v.name,
+        options: v.options.split(",").map(o => o.trim()).filter(Boolean)
+      }))
+    };
+console.log("gönderilen id mock",product.id)
+  await Promise.all([
+  axios.patch(`/api/products/${product.id}`, payload),
+  axios.patch(`/api/mock/trendyol/products/${product.id}`, payload)
+]);
+
+    // 4) Listeyi yeniden çek ve kullanıcıyı uyar
+    await fetchProducts();
+    toast.success("✅ Ürün başarıyla güncellendi");
+
+    // 5) Düzenleme panelini kapat
+    closeSheet();
+  } catch (error: any) {
+    console.error("Güncelleme sırasında hata:", error);
+    toast.error("❌ Güncelleme sırasında bir sorun oluştu");
+  }
+};
+
 
   return (
     <Card className="max-w-full md:max-w-2xl border-0  mt-6 shadow-lg bg-white">
@@ -203,7 +233,7 @@ export default function ProductDetailCard({
             </div>
 
             {/* Varyantlar */}
-            {product.variants?.length > 0 && (
+            {product.variants.length > 0 && (
               <>
                 <Separator />
                 <div>

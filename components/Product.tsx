@@ -41,14 +41,8 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { toast } from "sonner"
 import ProductDetailCard from "@/components/ProductDetailCard"
+import { Product } from "@/types/product"
 
-export type Product = {
-  _id: string
-  name: string
-  image: string
-  price: number
-  stock: number
-}
 
 export default function ProductPage() {
   const { products, loading, fetchProducts } = useProducts()
