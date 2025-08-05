@@ -42,6 +42,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogT
 import { toast } from "sonner"
 import ProductDetailCard from "@/components/ProductDetailCard"
 import { Product } from "@/types/product"
+import axios from "axios"
 
 
 export default function ProductPage() {
@@ -67,19 +68,28 @@ export default function ProductPage() {
     setOpen(true)
   }
 
-  const handleDelete = async (id: string) => {
-    try {
-      const res = await fetch(`/api/products/${id}`, {
-        method: "DELETE",
-      })
-      if (!res.ok) throw new Error("Silme işlemi başarısız")
-      toast.success("Ürün başarıyla silindi")
-      fetchProducts()
-    } catch (error) {
-      toast.error("Silme sırasında hata oluştu")
-    }
-  }
+const handleDelete = async (product: Product) => {
+  try {
+    const calls: Promise<any>[] = []
 
+    if (product.sourceType === "db") {
+      // DB’den sil
+      calls.push(axios.delete(`/api/products/${product.id}`))
+    } else if (product.sourceType === "trendyol") {
+      // Mock Trendyol’dan sil
+      calls.push(axios.delete(`/api/mock/trendyol/products/${product.id}`))
+    }
+
+    // Paralel silme işlemleri
+    await Promise.all(calls)
+
+    toast.success("✅ Ürün başarıyla silindi")
+    await fetchProducts()    // listeyi yenile
+  } catch (err) {
+    console.error("Silme sırasında hata:", err)
+    toast.error("❌ Ürün silinemedi")
+  }
+}
   const columns: ColumnDef<Product>[] = [
     {
       id: "select",
@@ -260,7 +270,7 @@ export default function ProductPage() {
           <DialogFooter>
             <Button variant="outline" className="hover:scale-110 shadow" onClick={() => setDialogProduct(null)}>İptal</Button>
             <Button variant="destructive" className="text-red-500 hover:scale-110 shadow" onClick={() => {
-              if (dialogProduct) handleDelete(dialogProduct._id)
+              if (dialogProduct) handleDelete(dialogProduct)
               setDialogProduct(null)
             }}>Sil</Button>
           </DialogFooter>

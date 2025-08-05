@@ -4,13 +4,9 @@
 import { createContext, useContext, useEffect, useState } from "react"
 import axios from "axios"
 import { useAuth } from "./AuthContext"
-export type Invoice = {
-  _id: string
-  customer: string
-  orderId: string
-  total: number
-  date: string
-}
+import { mapDbToInvoice, mapTrendyolToInvoice } from "@/lib/mappers"
+import { DbInvoice, Invoice } from "@/types/invoice"
+
 
 type InvoiceContextType = {
   invoices: Invoice[]
@@ -23,30 +19,37 @@ type InvoiceContextType = {
 const InvoiceContext = createContext<InvoiceContextType | undefined>(undefined)
 
 export const InvoiceProvider = ({ children }: { children: React.ReactNode }) => {
-  const {user } = useAuth()
+  const { user } = useAuth()
   const [invoices, setInvoices] = useState<Invoice[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const fetchInvoices = async () => {
     try {
       setLoading(true)
-      const res = await axios.get("/api/invoices")
-      setInvoices(res.data)
-      setError(null)
+      const dbRes = await axios.get<DbInvoice[]>("/api/invoices")
+      const dbInvoices = dbRes.data.map(mapDbToInvoice)
 
+      let trInvoices: Invoice[] = []// Mock Trendyol faturaları (henüz yoksa[])
+
+      try {
+        const trRes = await axios.get<any[]>("/api/mock/trendyol/invoice")
+        trInvoices = trRes.data.map(mapTrendyolToInvoice)
+      } catch {
+        console.warn("Mock Trendyol faturaları alınamadı veya tanımsız.")
+      }
+      setInvoices([...dbInvoices, ...trInvoices])
     } catch (error) {
       setError('Siparişler alınamadı.', error.data)
     } finally {
       setLoading(false)
     }
-
-
   }
+  console.log(invoices)
   useEffect(() => {
     fetchInvoices()
 
   }, [user?.id])
-console.log("users id ", user?.id)
+  console.log("users id ", user?.id)
   const addInvoice = (invoice: Invoice) => {
     setInvoices((prev) => [invoice, ...prev])
   }

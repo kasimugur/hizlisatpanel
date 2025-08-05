@@ -10,8 +10,9 @@ import React, {
 } from "react"
 import axios from "axios"
 import { useAuth } from "./AuthContext"
-import { Product } from "@/types/product"
+import { DbProduct, Product } from "@/types/product"
 import { mapDbToProduct, mapTrendyolToProduct } from "@/lib/mappers"
+import { MockTrendyolProduct } from "@/types/mockTrendyolProduct"
 
 
 // 2. Context tipi

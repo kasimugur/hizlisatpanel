@@ -45,8 +45,7 @@ const handleCreateShipment = () => {
     company: firm,
     status: "Yolda",
     labelPdf: "#", // Gerçek API'den gelirse buraya link gelecek
-  };
-
+  }; 
   setShipments((prev) => [...prev, newShipment]);
 
   toast.success(`📦 ${firm} firması ile kargo oluşturuldu`);

@@ -41,10 +41,11 @@ export default function NewInvoiceSheet() {
 
   const ordersCargo = orders.filter(o => o.status === "Kargoda" || o.status === "Teslim Edildi")
 
+  console.log(ordersCargo)
   const handleOrderSelect = (id: string) => {
-    const selected = orders.find(o => o._id === id)
+    const selected = orders.find(o => o.id === id)
     if (!selected) return
-
+console.log(selected,"bakaakakak")
     setFormData({
       orderId: id,
       customer: selected.customerName,
@@ -135,8 +136,8 @@ export default function NewInvoiceSheet() {
             <SelectContent>
               {ordersCargo.length > 0 ? (
                 ordersCargo.map(order => (
-                  <SelectItem key={order._id} value={order._id}>
-                    #{order._id.slice(-5)} - {order.customerName} - ₺{order.totalPrice}
+                  <SelectItem key={order._id} value={order.id}>
+                    #{order.id.slice(-5)} - {order.customerName} - ₺{order.totalPrice}
                   </SelectItem>
                 ))
               ) : (

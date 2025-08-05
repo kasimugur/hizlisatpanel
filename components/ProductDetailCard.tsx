@@ -46,6 +46,7 @@ export default function ProductDetailCard({
   const addVariant = () => {
     setFormData(prev => ({
       ...prev,
+
       variants: [...prev.variants, { name: "", options: "" }]
     }));
   };
@@ -56,47 +57,31 @@ export default function ProductDetailCard({
     setFormData(prev => ({ ...prev, variants: newVariants }));
   };
 
-  // const handleClick = async () => {
-  //   try {
-  //     const payload = {
-  //       ...formData,
-  //       variants: formData.variants.map(v => ({
-  //         name: v.name,
-  //         options: v.options.split(",").map(o => o.trim()).filter(Boolean)
-  //       }))
-  //     };
-
-  //     await axios.patch(`/api/products/${product._id}`, payload);
-  //     await fetchProducts();
-  //     toast.success("✅ Ürün başarıyla güncellendi");
-  //     closeSheet();
-  //   } catch (error: any) {
-  //     console.error("Ürün güncellenemedi", error);
-  //     toast.error("❌ Güncelleme sırasında bir hata oluştu");
-  //   }
-  // };
-
+  
 const handleClick = async () => {
   try {
-    // 1) Formdan gelen veriyi Trendyol formatındaki variants'a dönüştür
     const payload = {
       ...formData,
       variants: formData.variants.map(v => ({
-        name: v.name,
+        name:    v.name,
         options: v.options.split(",").map(o => o.trim()).filter(Boolean)
       }))
     };
-console.log("gönderilen id mock",product.id)
-  await Promise.all([
-  axios.patch(`/api/products/${product.id}`, payload),
-  axios.patch(`/api/mock/trendyol/products/${product.id}`, payload)
-]);
 
-    // 4) Listeyi yeniden çek ve kullanıcıyı uyar
+    const calls = [];
+    if (product.sourceType === "db") {
+      // Sadece kendi DB ürününü güncelle
+      calls.push(axios.patch(`/api/products/${product.id}`, payload));
+    }
+    else if (product.sourceType === "trendyol") {
+      // Sadece mock Trendyol ürününü güncelle
+      calls.push(axios.patch(`/api/mock/trendyol/products/${product.id}`, payload));
+    }
+
+    await Promise.all(calls);
+
     await fetchProducts();
     toast.success("✅ Ürün başarıyla güncellendi");
-
-    // 5) Düzenleme panelini kapat
     closeSheet();
   } catch (error: any) {
     console.error("Güncelleme sırasında hata:", error);
@@ -104,6 +89,14 @@ console.log("gönderilen id mock",product.id)
   }
 };
 
+const createdAtDisplay = product.createdAt
+    ? (() => {
+        const d = new Date(product.createdAt);
+        return isNaN(d.getTime())
+          ? "-"                       // hala geçersizse
+          : format(d, "dd/MM/yyyy HH:mm");
+      })()
+    : "-";
 
   return (
     <Card className="max-w-full md:max-w-2xl border-0  mt-6 shadow-lg bg-white">
@@ -255,7 +248,7 @@ console.log("gönderilen id mock",product.id)
             {/* Eklenme Tarihi */}
             <Separator />
             <div className="text-xs text-muted-foreground text-end">
-              ⏰ Eklenme tarihi: {format(new Date(product.createdAt), "dd.MM.yyyy HH:mm")}
+              ⏰ Eklenme tarihi: {createdAtDisplay}
             </div>
           </div>
         )}

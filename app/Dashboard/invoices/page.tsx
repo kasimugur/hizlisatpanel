@@ -10,6 +10,7 @@ import NewInvoiceSheet from "@/components/NewInvoiceSheet";
 import { useInvoices } from "@/context/InvoiceContext";
 import { toast } from "sonner";
 import axios from "axios";
+import { Invoice } from "@/types/invoice";
 
 
 export default function InvoiceSelect() {
@@ -26,6 +27,7 @@ export default function InvoiceSelect() {
       toast.error("Fatura silinirken hata oluştu");
     }
   }
+
   if (loading) return <p>Yükleniyor...</p>
   return (
     <div className="p-6 space-y-6 bg-white rounded-md">
@@ -64,10 +66,18 @@ export default function InvoiceSelect() {
             <tbody>
               {invoices.map((fatura) => (
                 <tr key={fatura.no} className="border-t hover:bg-gray-50">
-                  <td className="p-3 font-medium">{fatura.no}</td>
+                  <td className="p-3 font-medium">{fatura.orderId}</td>
                   <td className="p-3">{fatura.customer}</td>
                   <td className="p-3 text-green-700 font-semibold">₺{fatura.total}</td>
-                  <td className="p-3">{format(new Date(fatura.date), "dd.MM.yyyy")}</td>
+
+                  <td className="p-3">{fatura.createdAt
+    ? (() => {
+        const d = new Date(fatura.createdAt);
+        return isNaN(d.getTime())
+          ? "-"                       // hala geçersizse
+          : format(d, "dd/MM/yyyy HH:mm");
+      })()
+    : "-"}</td>
                   <td className="p-3">
                     <Button onClick={() => {
                       if (!fatura?._id) {

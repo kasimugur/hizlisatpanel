@@ -2,22 +2,9 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import axios from 'axios'
 import { useAuth } from './AuthContext'
+import { DbOrder, Order } from '@/types/order'
+import { mapDbToOrder, mapTrendyolToOrder } from '@/lib/mappers'
 
-export type Order = {
-  _id?: string
-  customerName: string         // Fatura üstündeki isim
-  customerEmail: string        // E-posta ile fatura gönderimi için
-  phone?: string               // Opsiyonel ama faydalı
-  address: string              // Tek satır fatura adresi
-  items: {
-    name: string               // Ürün adı
-    quantity: number          // Adet
-    price: number             // Birim fiyat
-  }[]
-  totalPrice: number           // Toplam fiyat
-  status: "Hazırlanıyor" | "Kargoda" | "Teslim Edildi" | "İptal Edildi"
-  createdAt?: string
-}
 
 type OrdersContextType = {
   orders: Order[]
@@ -37,8 +24,15 @@ export const OrdersProvider = ({ children }: { children: React.ReactNode }) => {
   const fetchOrders = async () => {
     try {
       setLoading(true)
-      const res = await axios.get('/api/orders')
-      setOrders(res.data)
+       const dbRes = await axios.get<DbOrder[]>("/api/orders")
+      const dbOrders = dbRes.data.map(mapDbToOrder)
+
+      // Mock Trendyol siparişleri
+      const trRes = await axios.get<Order[]>("/api/mock/trendyol/orders")
+      const trOrders = trRes.data.map(mapTrendyolToOrder)
+
+      // Birleştir
+      setOrders([...dbOrders, ...trOrders])
       setError(null)
     } catch (err) {
       setError('Siparişler alınamadı.')

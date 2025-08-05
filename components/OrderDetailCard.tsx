@@ -39,19 +39,37 @@ export default function OrderDetailCard({ order, mode, closeSheet }: { order: an
 
   const totalPrice = formData.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-
 const handleClick = async () => {
   try {
-    const response = await axios.patch(`/api/orders/${order._id}`, formData);
-console.log("Güncelleme başarılı bir şekilde gerçekleşti");
-    toast.success("Sipariş başarıyla güncellendi");
-  closeSheet() // düzenleme modundan çık
-    refetch(); // verileri güncelle
-  } catch (error) {
-    console.error(error,"Güncelleme sırasında bir hata oluştu.");
-    toast.error("Güncelleme sırasında bir hata oluştu.");
+    // 1) Formdan gelen ham veriyi direkt body'ye koyduk.
+    const payload = { ...formData }
+
+    const calls: Promise<any>[] = []
+
+    if (order.sourceType === "db") {
+      // DB sipariş güncelle
+      calls.push(axios.patch(`/api/orders/${order.id}`, payload))
+    }
+    else if (order.sourceType === "trendyol") {
+      // Mock Trendyol sipariş güncelle
+      // Eğer mock route'un PUT yerine PATCH istiyorsa ona göre değiştir
+      calls.push(axios.patch(`/api/mock/trendyol/orders/${order.id}`, payload))
+    }
+    // Eğer hem DB hem mock'u birden güncellemek istersen:
+    // calls.push(axios.patch(`/api/orders/${order.id}`, payload))
+    // calls.push(axios.patch(`/api/mock/trendyol/orders/${order.id}`, payload))
+
+    await Promise.all(calls)
+
+    console.log("Güncelleme başarılı bir şekilde gerçekleşti")
+    toast.success("Sipariş başarıyla güncellendi")
+    closeSheet()   // düzenleme modundan çık
+    refetch()      // context veya SWR/React Query ile verileri yenile
+  } catch (error: any) {
+    console.error("Güncelleme sırasında bir hata oluştu:", error)
+    toast.error("Güncelleme sırasında bir hata oluştu.")
   }
-};
+}
 
   return (
     <Card className="max-w-full md:max-w-2xl mx-auto mt-6 shadow-lg  border-0 border-muted-foreground/10 bg-white">
