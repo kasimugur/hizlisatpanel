@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
   }
 
   // 3. JWT token oluştur
-  const token = signToken({ sub: user._id, email: user.email });
+  const token = signToken({ sub: user._id, email: user.email,demo:true });
 
   // 4. Cookie’ye yaz
   const res = NextResponse.json({
@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'strict',
     path: '/',
-    maxAge: 60 * 60 * 1000 * 1 // 7 gün
+    maxAge: 60 * 60 * 1000 * 1 // 1saat
   });
 
   return res;

@@ -5,8 +5,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { PlayCircle } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 
 export function Hero() {
+  const { demoLogin } = useAuth()
   return (
     <section
       id="landing"
@@ -25,9 +27,9 @@ export function Hero() {
           <Button asChild>
             <Link href="#register">Ücretsiz Kayıt Ol</Link>
           </Button>
-          <Button variant="outline" asChild>
+          <Button onClick={demoLogin} variant="outline" asChild>
             <Link
-              href="#demo"
+              href=""
               className="inline-flex items-center justify-center gap-2"
             >
               <PlayCircle className="w-5 h-5" />

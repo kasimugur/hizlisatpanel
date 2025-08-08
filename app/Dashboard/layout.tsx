@@ -13,17 +13,21 @@ export default async function DashboardLayout({ children }: { children: React.Re
   // 1. Token'ı cookie'den çek
   const cookieStore = cookies()
   const token = cookieStore.get('token')?.value
+  const isDemo = cookieStore.get('demo')?.value === 'true'
 
   // 2. Token yoksa login'e yönlendir
-  if (!token) {
+  if (!token && !isDemo) {
     redirect('/login')
   }
 
   // 3. Token'ı verify et. Geçersizse yine login'e at.
-  try {
-    verifyToken(token) // User obje dönüyorsa burada da kullanabilirsin
-  } catch (err) {
-    redirect('/login')
+  if (token) {
+
+    try {
+      verifyToken(token) // User obje dönüyorsa burada da kullanabilirsin
+    } catch (err) {
+      redirect('/login')
+    }
   }
 
   // 4. Layout'u döndür

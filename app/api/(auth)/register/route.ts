@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
   });
 
   // 5) JWT üret
-  const token = signToken({ sub: user._id, email: user.email });
+  const token = signToken({ sub: user._id, email: user.email});
 
   // 6) Default ayar oluştur
   const settingsPayload = { ...defaultSettings, user: user._id };

@@ -13,6 +13,7 @@ type AuthContextType = {
   logout: () => Promise<void>;
   register: (values: { name: string; email: string; password: string }) => Promise<void>;
   refresh: () => Promise<void>;
+  demoLogin: () => void
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -37,6 +38,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => { refresh(); }, []);
 
+const demoLogin =()=>{
+  setUser({
+    _id:'demo',
+    name:'Demo Kullanıcı',
+    email:'demo@demo.com',
+    role:'demo',
+    demo:true,
+  })
+  document.cookie= "demo=true; path=/" 
+  toast.success("Demo moduna giriş yapıldı.")
+  router.push("/dashboard")   
+}
   // Giriş
   const login = async (values: { email: string; password: string }) => {
     try {
@@ -67,17 +80,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       console.log(user,"logout")
       setUser(null);
       toast.success("Çıkış yapıldı.");
+
       console.log(user,"logout fonk")
       router.push("/login");
     } catch {
       toast.error("Çıkış sırasında hata oluştu.");
     }
-    
-    console.log(user,"logout çıkış")
   };
 console.log(user)
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, register, refresh }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, register, refresh,demoLogin }}>
       {loading ? <div className="flex justify-center items-center min-h-screen">Yükleniyor...</div> : children}
     </AuthContext.Provider>
   );

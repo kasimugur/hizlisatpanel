@@ -56,7 +56,7 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
 
   useEffect(() => {
     fetchProducts()
-  }, [user?.id])
+  }, [user?.id && user?.isDemo])
 console.log("product context",products.map(i=> i))
   return (
     <ProductContext.Provider value={{ products, setProducts, loading, fetchProducts }}>
